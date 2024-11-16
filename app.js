@@ -1,10 +1,12 @@
 import express from 'express';
-//import  config  from './config/config.json'  assert { type: "json" };
 import sequelize from './config.js';
 import cors from 'cors';
 import bodyParser from 'body-parser';
 
+//rutas
 import usuariosRoutes from './routes/usurios.routes.js';
+import remitosRoutes from './routes/remitos.routes.js';
+// import exportsRoutes from './routes/exports.routes.js'
 
 //modelos
 import './models/Producto.js';
@@ -18,6 +20,7 @@ import './models/Produccion.js';
 import './models/Vendedores.js';
 import './models/Rubros.js';
 import './models/Estados.js';
+import './models/Remito.js';
 
 
 const app = express();
@@ -33,7 +36,9 @@ app.use(cors({
 app.get('/', (req, res) => {
     res.send('¡Hola, Express!');
 });
+
 app.use('/api', usuariosRoutes);
+app.use('/api', remitosRoutes);
 
 
 
