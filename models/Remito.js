@@ -1,6 +1,8 @@
-// models/Remito.js
 import { DataTypes } from 'sequelize';
 import sequelize from '../config.js';
+import Proveedor from './Proveedor.js';
+import Producto from './Producto.js';
+import Estado from './Estados.js';
 
 const Remito = sequelize.define('Remito', {
   Id_Remito: {
@@ -8,16 +10,28 @@ const Remito = sequelize.define('Remito', {
     primaryKey: true,
     autoIncrement: true
   },
+  Id_Proveedor: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    references: {
+      model: Proveedor,
+      key: 'Id_Proveedor'
+    }
+  },
   Id_Producto: {
     type: DataTypes.INTEGER,
     allowNull: false,
+    references: {
+      model: Producto,
+      key: 'Id_Producto'
+    }
   },
   Numero: {
     type: DataTypes.INTEGER,
     allowNull: false
   },
-  Precio: {
-    type: DataTypes.INTEGER,
+  PrecioUnit: {
+    type: DataTypes.DECIMAL,
     allowNull: false
   },
   Cantidad: {
@@ -25,23 +39,33 @@ const Remito = sequelize.define('Remito', {
     allowNull: false
   },
   Total: {
-    type: DataTypes.INTEGER,
+    type: DataTypes.DECIMAL,
     allowNull: false
   },
   Subtotal: {
-    type: DataTypes.INTEGER,
+    type: DataTypes.DECIMAL,
     allowNull: false
   },
   Id_Estado: {
-    type: DataTypes.INTEGER,
+    type: DataTypes.BOOLEAN,
     allowNull: false,
+    references: {
+      model: Estado,
+      key: 'Id_Estado'
+    }
   },
   Modelo: {
-    type: DataTypes.BLOB // Cambia esto al tipo de datos adecuado 
+    type: DataTypes.BLOB,
+    allowNull: true
   }
 }, {
-  tableName: 'Remitos',
+  tableName: 'Remito',
   timestamps: true
 });
+
+// Definir relaciones
+Remito.belongsTo(Proveedor, { foreignKey: 'Id_Proveedor', as: 'Proveedor' });
+Remito.belongsTo(Producto, { foreignKey: 'Id_Producto', as: 'Producto' });
+Remito.belongsTo(Estado, { foreignKey: 'Id_Estado', as: 'Estado' });
 
 export default Remito;

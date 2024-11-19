@@ -1,6 +1,6 @@
 import { DataTypes } from 'sequelize';
 import sequelize from '../config.js';
-import Proveedor from './Proveedor'; // Asegúrate de importar el modelo de Proveedor
+import Proveedor from './Proveedor.js'; // Asegúrate de importar el modelo de Proveedor
 
 const Compras = sequelize.define('Compras', {
   Id_Compras: {
@@ -16,7 +16,7 @@ const Compras = sequelize.define('Compras', {
     type: DataTypes.INTEGER,
     references: {
       model: Proveedor,
-      key: 'id_Proveedor'
+      key: 'Id_Proveedor'
     },
     allowNull: false
   },
@@ -52,7 +52,7 @@ const Compras = sequelize.define('Compras', {
 // Relación con Proveedor (uno a muchos)
 Compras.belongsTo(Proveedor, {
   foreignKey: 'id_Proveedor',
-  targetKey: 'id_Proveedor'
+  targetKey: 'Id_Proveedor'
 });
 
 export default Compras;
