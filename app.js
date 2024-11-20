@@ -12,15 +12,20 @@ import remitosRoutes from './routes/remitos.routes.js';
 import './models/Producto.js';
 import './models/Usuario.js';
 import './models/VentasMercaderia.js';
+import './models/Devolucion.js';
+import './models/Produccion.js';
 import './models/Proveedor.js';
 import './models/Solicitantes.js';
 import './models/Clientes.js';
-import './models/Devolucion.js';
-import './models/Produccion.js';
 import './models/Vendedores.js';
 import './models/Rubros.js';
 import './models/Estados.js';
-import './models/Remito.js';
+import './models/MateriaPrima.js';
+import './models/Concepto.js';
+import './models/IVAventas.js';
+import './models/Compras.js';
+import './models/IVAventasdiarias-ingresos.js';
+// import './models/Remito.js';
 
 
 const app = express();
@@ -29,12 +34,12 @@ const port = 3000;
 
 app.use(bodyParser.json());
 app.use(cors({
-  origin:'http://localhost:9000'
+  origin: 'http://localhost:9000'
 }));
 
 //Rutas
 app.get('/', (req, res) => {
-    res.send('¡Hola, Express!');
+  res.send('¡Hola, Express!');
 });
 
 app.use('/api', usuariosRoutes);
@@ -51,10 +56,10 @@ async function main() {
   try {
     await sequelize.sync();
     console.log('Conectado a PostgreSQL con Sequelize');
-    
+
   } catch (error) {
-    console.log('Error al conectar con PostgreSQL:', error )
-    
+    console.log('Error al conectar con PostgreSQL:', error)
+
   }
 }
 

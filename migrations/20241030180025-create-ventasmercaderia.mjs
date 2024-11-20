@@ -4,7 +4,6 @@ import { DataTypes } from 'sequelize';
 
 export default {
   async up(queryInterface) {
-    console.log("Ejecutando migración: createVentasMercaderia");
     await queryInterface.createTable('VentasMercaderia', {
       Id_VentaMercaderia: {
         type: DataTypes.INTEGER,
@@ -12,13 +11,13 @@ export default {
         autoIncrement: true,
       },
       id_Producto: {
-        type: Sequelize.INTEGER,
+        type: DataTypes.INTEGER,
         allowNull: false,
         references: {
           model: 'Productos',  // nombre de la tabla referenciada
           key: 'Id_Producto',   // clave primaria de la tabla referenciada
         },
-        onDelete: 'CASCADE', // comportamiento al eliminar un producto
+        onDelete: 'SET NULL', // comportamiento al eliminar un producto
         onUpdate: 'CASCADE', // comportamiento al actualizar un producto
       },
       Fecha: {
