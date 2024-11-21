@@ -6,6 +6,7 @@ import bodyParser from 'body-parser';
 //rutas
 import usuariosRoutes from './routes/usurios.routes.js';
 import remitosRoutes from './routes/remitos.routes.js';
+import produccionRoutes from './routes/produccion.routes.js';
 // import exportsRoutes from './routes/exports.routes.js'
 
 //modelos
@@ -44,7 +45,7 @@ app.get('/', (req, res) => {
 
 app.use('/api', usuariosRoutes);
 app.use('/api', remitosRoutes);
-
+app.use('/api', produccionRoutes)
 
 
 app.listen(port, () => {

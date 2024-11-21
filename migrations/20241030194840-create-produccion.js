@@ -9,7 +9,7 @@ export default {
         primaryKey: true,
         autoIncrement: true
       },
-      id_Producto: {
+      Id_Producto: {
         type: DataTypes.INTEGER,
         allowNull: false,
         references: {
