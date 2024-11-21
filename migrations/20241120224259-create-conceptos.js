@@ -1,27 +1,26 @@
 'use strict';
-
 import { DataTypes } from 'sequelize';
 
 export default {
   async up(queryInterface) {
-    await queryInterface.createTable('Productos', {
-      Id_Producto: {
+    await queryInterface.createTable('Conceptos', {
+      id_Concepto: {
         type: DataTypes.INTEGER,
         primaryKey: true,
         autoIncrement: true,
       },
-      Codigo: {
-        type: DataTypes.INTEGER,
+      Concepto: {
+        type: DataTypes.STRING,
         allowNull: false,
       },
-      Nombre: {
-        type: DataTypes.STRING,
+      Valor: {
+        type: DataTypes.DECIMAL(10, 2), // Definir un valor decimal con precisión de 10 y escala de 2
         allowNull: false,
       },
     });
   },
 
   async down(queryInterface) {
-    await queryInterface.dropTable('Productos');
-  },
+    await queryInterface.dropTable('Conceptos');
+  }
 };

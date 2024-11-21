@@ -17,7 +17,7 @@ const Proveedor = sequelize.define('Proveedor', {
   }
 }, {
   tableName: 'Proveedor',
-  timestamps: true
+  timestamps: false
 });
 
 export default Proveedor;

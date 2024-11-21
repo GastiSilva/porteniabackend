@@ -1,35 +1,25 @@
-'use strict';
+import { DataTypes } from 'sequelize';
 
-module.exports = {
-  async up(queryInterface, Sequelize) {
+export default {
+  async up(queryInterface) {
     await queryInterface.createTable('Clientes', {
       id_Cliente: {
-        type: Sequelize.INTEGER,
+        type: DataTypes.INTEGER,
         primaryKey: true,
         autoIncrement: true
       },
       Nombre: {
-        type: Sequelize.STRING,
+        type: DataTypes.STRING,
         allowNull: false
       },
       Cuil: {
-        type: Sequelize.STRING,
+        type: DataTypes.STRING,
         allowNull: false
       },
-      createdAt: {
-        type: Sequelize.DATE,
-        allowNull: false,
-        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
-      },
-      updatedAt: {
-        type: Sequelize.DATE,
-        allowNull: false,
-        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP')
-      }
     });
   },
 
-  async down(queryInterface, Sequelize) {
+  async down(queryInterface) {
     await queryInterface.dropTable('Clientes');
   }
 };

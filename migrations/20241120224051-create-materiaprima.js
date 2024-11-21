@@ -1,59 +1,61 @@
 import { DataTypes } from 'sequelize';
-import sequelize from '../config.js';
 
-const MateriaPrima = sequelize.define('MateriaPrima', {
-    id_MateriaPrima: {
+export default {
+  async up(queryInterface) {
+    await queryInterface.createTable('MateriaPrima', {
+      id_MateriaPrima: {
         type: DataTypes.INTEGER,
         primaryKey: true,
         autoIncrement: true,
-    },
-    Nombre: {
+      },
+      Nombre: {
         type: DataTypes.STRING,
         allowNull: false,
-    },
-    Fecha: {
+      },
+      Fecha: {
         type: DataTypes.DATE,
         allowNull: false,
-    },
-    Marca: {
+      },
+      Marca: {
         type: DataTypes.STRING,
         allowNull: false,
-    },
-    Cantidad: {
+      },
+      Cantidad: {
         type: DataTypes.INTEGER,
         allowNull: false,
-    },
-    PrecioUnitario: {
+      },
+      PrecioUnitario: {
         type: DataTypes.INTEGER,
         allowNull: false,
-    },
-    PrecioTotal: {
+      },
+      PrecioTotal: {
         type: DataTypes.INTEGER,
         allowNull: false,
-    },
-    Id_VentaMercaderias: {
+      },
+      Id_VentaMercaderias: {
         type: DataTypes.INTEGER,
         allowNull: true,
         references: {
-            model: 'VentasMercaderia',
-            key: 'Id_VentaMercaderia',
+          model: 'VentasMercaderia',
+          key: 'Id_VentaMercaderia',
         },
         onDelete: 'SET NULL',
         onUpdate: 'CASCADE',
-    },
-    id_Produccion: {
+      },
+      id_Produccion: {
         type: DataTypes.INTEGER,
         allowNull: true,
         references: {
-            model: 'Produccion',
-            key: 'id_Produccion',
+          model: 'Produccion',
+          key: 'id_Produccion',
         },
         onDelete: 'SET NULL',
         onUpdate: 'CASCADE',
-    },
-}, {
-    tableName: 'MateriaPrima',
-    timestamps: false,
-});
+      },
+    });
+  },
 
-export default MateriaPrima;
+  async down(queryInterface) {
+    await queryInterface.dropTable('MateriaPrima');
+  }
+};

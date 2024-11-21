@@ -1,5 +1,4 @@
 import { DataTypes } from 'sequelize';
-//  import sequelize from '../database/config.js'; // Ajusta la ruta según tu estructura
 
 export default {
     up: async (queryInterface) => {

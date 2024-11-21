@@ -1,69 +1,73 @@
+'use strict';
 import { DataTypes } from 'sequelize';
-import sequelize from '../config.js';
 
-const Compras = sequelize.define('Compras', {
-    Id_Compras: {
+export default {
+  async up(queryInterface) {
+    await queryInterface.createTable('Compras', {
+      Id_Compras: {
         type: DataTypes.INTEGER,
         primaryKey: true,
         autoIncrement: true,
-    },
-    Fecha: {
+        allowNull: false,
+      },
+      Fecha: {
         type: DataTypes.DATE,
         allowNull: false,
-    },
-    Id_Proveedor: {
+      },
+      Id_Proveedor: {
         type: DataTypes.INTEGER,
         allowNull: false,
         references: {
-            model: 'Proveedor',
-            key: 'id_Proveedor',
+          model: 'Conceptos',
+          key: 'id_Conceptos',
         },
-        onUpdate: 'CASCADE',
+        onUpdate: 'SET NULL',
         onDelete: 'CASCADE',
-    },
-    Id_MateriaPrima: {
+      },
+      Id_MateriaPrima: {
         type: DataTypes.INTEGER,
         allowNull: false,
         references: {
-            model: 'MateriaPrima',
-            key: 'id_MateriaPrima',
+          model: 'MateriaPrima',
+          key: 'id_MateriaPrima',
         },
-        onUpdate: 'CASCADE',
+        onUpdate: 'SET NULL',
         onDelete: 'CASCADE',
-    },
-    Id_Concepto: {
+      },
+      Id_Concepto: {
         type: DataTypes.INTEGER,
         allowNull: false,
         references: {
-            model: 'Conceptos',
-            key: 'id_Concepto',
+          model: 'Conceptos',
+          key: 'id_Concepto',
         },
         onUpdate: 'CASCADE',
         onDelete: 'CASCADE',
-    },
-    Cantidad: {
+      },
+      Cantidad: {
         type: DataTypes.INTEGER,
         allowNull: false,
-    },
-    PrecioUnit: {
+      },
+      PrecioUnit: {
         type: DataTypes.INTEGER,
         allowNull: false,
-    },
-    Factura_N: {
+      },
+      Factura_N: {
         type: DataTypes.INTEGER,
         allowNull: false,
-    },
-    Importe: {
+      },
+      Importe: {
         type: DataTypes.INTEGER,
         allowNull: false,
-    },
-    Estado: {
+      },
+      Estado: {
         type: DataTypes.BOOLEAN,
         allowNull: false,
-    },
-}, {
-    tableName: 'Compras',
-    timestamps: false,
-});
+      },
+    });
+  },
 
-export default Compras;
+  async down(queryInterface) {
+    await queryInterface.dropTable('Compras');
+  },
+};

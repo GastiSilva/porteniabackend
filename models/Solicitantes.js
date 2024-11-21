@@ -33,7 +33,7 @@ const Solicitantes = sequelize.define('Solicitantes', {
   }
 }, {
   tableName: 'Solicitantes',
-  timestamps: true
+  timestamps: false
 });
 
 export default Solicitantes;

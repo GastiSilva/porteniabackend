@@ -17,7 +17,7 @@ const Cliente = sequelize.define('Clientes', {
   }
 }, {
   tableName: 'Clientes',
-  timestamps: true
+  timestamps: false
 });
 
 export default Cliente;

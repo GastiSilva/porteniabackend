@@ -11,6 +11,12 @@ const Devolucion = sequelize.define('Devolucion', {
   id_Producto: {
     type: DataTypes.INTEGER,
     allowNull: false,
+    references: {
+      model: 'Productos', // Nombre de la tabla referenciada
+      key: 'Id_Producto', // Nombre de la columna referenciada
+    },
+    onUpdate: 'CASCADE',
+    onDelete: 'CASCADE',
   },
   id_Proveedor: {
     type: DataTypes.INTEGER,
