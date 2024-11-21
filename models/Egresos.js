@@ -1,6 +1,7 @@
 import { DataTypes } from 'sequelize';
 import sequelize from '../config.js';
 import Proveedor from './Proveedor.js'; // Asegúrate de importar el modelo de Proveedor
+import Gastos from './Gastos.js';
 
 const Egresos = sequelize.define('Egresos', {
   Id_Egresos: {
@@ -17,16 +18,12 @@ const Egresos = sequelize.define('Egresos', {
     allowNull: false
   },
   Comprobante: {
-    type: DataTypes.INTEGER,
+    type: DataTypes.STRING,
     allowNull: false
   },
   ImporteTotal: {
-    type: DataTypes.INTEGER,
+    type: DataTypes.DECIMAL(10, 2),
     allowNull: false
-  },
-  Compcon: {
-    type: DataTypes.INTEGER,
-    allowNull: true
   },
   Id_Proveedor: {
     type: DataTypes.INTEGER,
@@ -36,54 +33,15 @@ const Egresos = sequelize.define('Egresos', {
     },
     allowNull: true
   },
-  Banco: {
+  Id_Gastos: {
     type: DataTypes.INTEGER,
-    allowNull: true
-  },
-  Familia: {
-    type: DataTypes.INTEGER,
-    allowNull: true
-  },
-  Vehiculo: {
-    type: DataTypes.INTEGER,
-    allowNull: true
-  },
-  MantVehi: {
-    type: DataTypes.INTEGER,
-    allowNull: true
-  },
-  Impuestos: {
-    type: DataTypes.INTEGER,
-    allowNull: true
-  },
-  Servicios: {
-    type: DataTypes.INTEGER,
-    allowNull: true
-  },
-  Comision: {
-    type: DataTypes.INTEGER,
-    allowNull: true
-  },
-  Honorario: {
-    type: DataTypes.INTEGER,
-    allowNull: true
-  },
-  Sueldo: {
-    type: DataTypes.INTEGER,
-    allowNull: true
-  },
-  ProdFabrica: {
-    type: DataTypes.INTEGER,
-    allowNull: true
-  },
-  MantFabrica: {
-    type: DataTypes.INTEGER,
-    allowNull: true
-  },
-  GastosVarios: {
-    type: DataTypes.INTEGER,
+    references: {
+      model: Gastos,
+      key: 'Id_Gastos'
+    },
     allowNull: true
   }
+  
 }, {
   tableName: 'Egresos',
   timestamps: true
@@ -91,8 +49,13 @@ const Egresos = sequelize.define('Egresos', {
 
 // Relación con Proveedor (uno a muchos)
 Egresos.belongsTo(Proveedor, {
-  foreignKey: 'id_Proveedor',
+  foreignKey: 'Id_Proveedor',
   targetKey: 'Id_Proveedor'
 });
+Egresos.belongsTo(Gastos, {
+  foreignKey: 'Id_Gastos',
+  targetKey: 'Id_Gastos'
+});
+
 
 export default Egresos;
