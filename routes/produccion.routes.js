@@ -1,7 +1,7 @@
 import express from "express";
 import sequelize from "../config.js";
 import Produccion from "../models/Produccion.js";
-import Producto from "../models/Producto.js"; // Asegúrate de importar el modelo Producto
+import Producto from "../models/Producto.js";
 
 const router = express.Router();
 
@@ -9,26 +9,26 @@ const router = express.Router();
 router.post("/SaveInProduccion", async (req, res) => {
     try {
         const { productos } = req.body;
+        console.log(req.body);
+
 
         if (!productos || !Array.isArray(productos)) {
             console.error("Datos inválidos:", productos);
             return res.status(400).json({ message: "Datos inválidos" });
         }
-
-        // Array para guardar los registros de Producción
         const registrosProduccion = [];
 
         for (const producto of productos) {
             const { nombre, cantidad, fecha } = producto;
 
-            // Buscar el producto en la tabla Producto
             const productoEncontrado = await Producto.findOne({
                 where: sequelize.where(
-                    sequelize.fn('LOWER', sequelize.col('Nombre')),
+                    sequelize.fn('LOWER', sequelize.col('Nombre')), // Asegúrate que 'Nombre' esté bien escrito
                     nombre.toLowerCase()
                 ),
-                attributes: ["Id_Producto"], // Solo obtenemos el Id_Producto
+                attributes: ["Id_Producto"],
             });
+
 
             // Si no se encuentra el producto, devolver un error
             if (!productoEncontrado) {
