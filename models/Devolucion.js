@@ -1,5 +1,6 @@
 import { DataTypes } from 'sequelize';
 import sequelize from '../config.js';
+import Proveedor from './Proveedor.js'; // Asegúrate de importar el modelo de Proveedor
 
 const Devolucion = sequelize.define('Devolucion', {
   id_Devolucion: {
@@ -17,6 +18,14 @@ const Devolucion = sequelize.define('Devolucion', {
     onUpdate: 'CASCADE',
     onDelete: 'CASCADE',
   },
+  id_Proveedor: {
+    type: DataTypes.INTEGER,
+    references: {
+      model: Proveedor,
+      key: 'Id_Proveedor'
+    },
+    allowNull: false
+  },
   Fecha: {
     type: DataTypes.DATE,
     allowNull: false
@@ -28,6 +37,12 @@ const Devolucion = sequelize.define('Devolucion', {
 }, {
   tableName: 'Devolucion',
   timestamps: true
+});
+
+// Relación con Proveedor (uno a muchos)
+Devolucion.belongsTo(Proveedor, {
+  foreignKey: 'id_Proveedor',
+  targetKey: 'Id_Proveedor'
 });
 
 export default Devolucion;
