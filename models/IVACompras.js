@@ -2,8 +2,8 @@ import { DataTypes } from 'sequelize';
 import sequelize from '../config.js';
 
 
-const IVAVentas = sequelize.define('IVAVentas', {
-  Id_IvaVentas: {
+const IVACompras = sequelize.define('IVACompras', {
+  Id_Compras: {
     type: DataTypes.INTEGER,
     primaryKey: true,
     autoIncrement: true
@@ -26,15 +26,15 @@ const IVAVentas = sequelize.define('IVAVentas', {
       model: 'Clientes',
       key: 'id_Cliente'
     },
-    allowNull: false
+    allowNull: true
   },
   Id_Proveedor: {
     type: DataTypes.INTEGER,
     references: {
       model: 'Proveedor',
-      key: 'Id_Proveedor'
+      key: 'id_Proveedor'
     },
-    allowNull: false
+    allowNull: true
   },
   CondicionIva: {
     type: DataTypes.STRING,
@@ -45,36 +45,56 @@ const IVAVentas = sequelize.define('IVAVentas', {
     allowNull: false
   },
   IVA21: {
-    type: DataTypes.DECIMAL(10, 2), // Puedes ajustar la precisión si es necesario
+    type: DataTypes.DECIMAL,
     allowNull: false
   },
   IVA10_5: {
-    type: DataTypes.DECIMAL(10, 2),
+    type: DataTypes.DECIMAL,
     allowNull: false
   },
-  Retenciones: {
+  PercIVA: {
     type: DataTypes.INTEGER,
-    allowNull: false
+    allowNull: true
+  },
+  IngrBrutosRetEfect: {
+    type: DataTypes.INTEGER,
+    allowNull: true
+  },
+  ConceptosNoAgravados: {
+    type: DataTypes.INTEGER,
+    allowNull: true
+  },
+  Flete10_5: {
+    type: DataTypes.DECIMAL,
+    allowNull: true
+  },
+  PercepcionesCba: {
+    type: DataTypes.DECIMAL,
+    allowNull: true
+  },
+  PercepcionesIIBB: {
+    type: DataTypes.DECIMAL,
+    allowNull: true
   },
   ImporteTotal: {
-    type: DataTypes.INTEGER,
+    type: DataTypes.DECIMAL,
     allowNull: false
   }
 }, {
-  tableName: 'IVAVentas',
+  tableName: 'IVACompras',
   timestamps: true
 });
 
 // Relación con Cliente (uno a muchos)
-// IVAVentas.belongsTo(Cliente, {
-//   foreignKey: 'id_Cliente',
+// IVACompras.belongsTo(Cliente, {
+//   foreignKey: 'Id_Cliente',
 //   targetKey: 'Id_Cliente'
 // });
 
 // // Relación con Proveedor (uno a muchos)
-// IVAVentas.belongsTo(Proveedor, {
-//   foreignKey: 'id_Proveedor',
+// IVACompras.belongsTo(Proveedor, {
+//   foreignKey: 'Id_Proveedor',
 //   targetKey: 'Id_Proveedor'
 // });
 
-export default IVAVentas;
+export default IVACompras;

@@ -20,13 +20,16 @@ import './models/Proveedor.js';
 import './models/Solicitantes.js';
 import './models/Clientes.js';
 import './models/Vendedores.js';
-import './models/Rubros.js';
+
+// import './models/Rubros.js';
 import './models/Estados.js';
 import './models/MateriaPrima.js';
 import './models/Concepto.js';
-import './models/IVAventas.js';
+// import './models/IVAventas.js';
 import './models/Compras.js';
-import './models/IVAventasdiarias-ingresos.js';
+import './models/Gastos.js';
+import './models/Egresos.js';
+import './models/IVACompras.js';
 // import './models/Remito.js';
 
 
