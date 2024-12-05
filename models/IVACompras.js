@@ -1,7 +1,6 @@
 import { DataTypes } from 'sequelize';
 import sequelize from '../config.js';
-import Cliente from './Clientes'; // Asegúrate de importar el modelo Clientes
-import Proveedor from './Proveedor'; // Asegúrate de importar el modelo Proveedor
+
 
 const IVACompras = sequelize.define('IVACompras', {
   Id_Compras: {
@@ -24,16 +23,16 @@ const IVACompras = sequelize.define('IVACompras', {
   Id_Cliente: {
     type: DataTypes.INTEGER,
     references: {
-      model: Cliente,
-      key: 'Id_Cliente'
+      model: 'Clientes',
+      key: 'id_Cliente'
     },
     allowNull: true
   },
   Id_Proveedor: {
     type: DataTypes.INTEGER,
     references: {
-      model: Proveedor,
-      key: 'Id_Proveedor'
+      model: 'Proveedor',
+      key: 'id_Proveedor'
     },
     allowNull: true
   },
@@ -87,15 +86,15 @@ const IVACompras = sequelize.define('IVACompras', {
 });
 
 // Relación con Cliente (uno a muchos)
-IVACompras.belongsTo(Cliente, {
-  foreignKey: 'Id_Cliente',
-  targetKey: 'Id_Cliente'
-});
+// IVACompras.belongsTo(Cliente, {
+//   foreignKey: 'Id_Cliente',
+//   targetKey: 'Id_Cliente'
+// });
 
-// Relación con Proveedor (uno a muchos)
-IVACompras.belongsTo(Proveedor, {
-  foreignKey: 'Id_Proveedor',
-  targetKey: 'Id_Proveedor'
-});
+// // Relación con Proveedor (uno a muchos)
+// IVACompras.belongsTo(Proveedor, {
+//   foreignKey: 'Id_Proveedor',
+//   targetKey: 'Id_Proveedor'
+// });
 
 export default IVACompras;

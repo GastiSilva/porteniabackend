@@ -1,7 +1,5 @@
 import { DataTypes } from 'sequelize';
 import sequelize from '../config.js';
-import Proveedor from './Proveedor.js'; // Asegúrate de importar el modelo de Proveedor
-import Gastos from './Gastos.js';
 
 const Egresos = sequelize.define('Egresos', {
   Id_Egresos: {
@@ -28,34 +26,34 @@ const Egresos = sequelize.define('Egresos', {
   Id_Proveedor: {
     type: DataTypes.INTEGER,
     references: {
-      model: Proveedor,
-      key: 'Id_Proveedor'
+      model: 'Proveedor',
+      key: 'id_Proveedor'
     },
     allowNull: true
   },
   Id_Gastos: {
     type: DataTypes.INTEGER,
     references: {
-      model: Gastos,
+      model: 'Gastos',
       key: 'Id_Gastos'
     },
     allowNull: true
   }
-  
+
 }, {
   tableName: 'Egresos',
-  timestamps: true
+  timestamps: false
 });
 
 // Relación con Proveedor (uno a muchos)
-Egresos.belongsTo(Proveedor, {
-  foreignKey: 'Id_Proveedor',
-  targetKey: 'Id_Proveedor'
-});
-Egresos.belongsTo(Gastos, {
-  foreignKey: 'Id_Gastos',
-  targetKey: 'Id_Gastos'
-});
+// Egresos.belongsTo(Proveedor, {
+//   foreignKey: 'Id_Proveedor',
+//   targetKey: 'Id_Proveedor'
+// });
+// Egresos.belongsTo(Gastos, {
+//   foreignKey: 'Id_Gastos',
+//   targetKey: 'Id_Gastos'
+// });
 
 
 export default Egresos;

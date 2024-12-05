@@ -7,6 +7,7 @@ import bodyParser from 'body-parser';
 import usuariosRoutes from './routes/usurios.routes.js';
 import remitosRoutes from './routes/remitos.routes.js';
 import produccionRoutes from './routes/produccion.routes.js';
+import productoRoutes from './routes/productos.routes.js';
 // import exportsRoutes from './routes/exports.routes.js'
 
 //modelos
@@ -19,12 +20,16 @@ import './models/Proveedor.js';
 import './models/Solicitantes.js';
 import './models/Clientes.js';
 import './models/Vendedores.js';
+
+// import './models/Rubros.js';
 import './models/Estados.js';
 import './models/MateriaPrima.js';
 import './models/Concepto.js';
-import './models/IVAventas.js';
+// import './models/IVAventas.js';
 import './models/Compras.js';
-import './models/IVAventasdiarias-ingresos.js';
+import './models/Gastos.js';
+import './models/Egresos.js';
+import './models/IVACompras.js';
 // import './models/Remito.js';
 
 
@@ -44,7 +49,8 @@ app.get('/', (req, res) => {
 
 app.use('/api', usuariosRoutes);
 app.use('/api', remitosRoutes);
-app.use('/api', produccionRoutes)
+app.use('/api', produccionRoutes);
+app.use('/api', productoRoutes);
 
 
 app.listen(port, () => {

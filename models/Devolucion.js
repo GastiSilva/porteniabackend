@@ -21,7 +21,7 @@ const Devolucion = sequelize.define('Devolucion', {
   id_Proveedor: {
     type: DataTypes.INTEGER,
     references: {
-      model: Proveedor,
+      model: 'Proveedor',
       key: 'Id_Proveedor'
     },
     allowNull: false
@@ -40,9 +40,9 @@ const Devolucion = sequelize.define('Devolucion', {
 });
 
 // Relación con Proveedor (uno a muchos)
-Devolucion.belongsTo(Proveedor, {
-  foreignKey: 'id_Proveedor',
-  targetKey: 'Id_Proveedor'
-});
+// Devolucion.belongsTo(Proveedor, {
+//   foreignKey: 'id_Proveedor',
+//   targetKey: 'Id_Proveedor'
+// });
 
 export default Devolucion;
