@@ -1,21 +1,21 @@
 {
   "development": {
     "username": "postgres",
-    "password": "krieirving123",
+    "password": "12345",
     "database": "LaPortenia",
     "host": "localhost",
     "dialect": "postgres"
   },
   "test": {
     "username": "postgres",
-    "password": "krieirving123",
+    "password": "12345",
     "database": "LaPortenia",
     "host": "localhost",
     "dialect": "postgres"
   },
   "production": {
     "username": "postgres",
-    "password": "krieirving123",
+    "password": "12345",
     "database": "LaPortenia",
     "host": "localhost",
     "dialect": "postgres"

@@ -6,6 +6,7 @@ import bodyParser from 'body-parser';
 //rutas
 import usuariosRoutes from './routes/usurios.routes.js';
 import remitosRoutes from './routes/remitos.routes.js';
+import produccionRoutes from './routes/produccion.routes.js';
 // import exportsRoutes from './routes/exports.routes.js'
 
 //modelos
@@ -18,7 +19,6 @@ import './models/Proveedor.js';
 import './models/Solicitantes.js';
 import './models/Clientes.js';
 import './models/Vendedores.js';
-import './models/Rubros.js';
 import './models/Estados.js';
 import './models/MateriaPrima.js';
 import './models/Concepto.js';
@@ -44,7 +44,7 @@ app.get('/', (req, res) => {
 
 app.use('/api', usuariosRoutes);
 app.use('/api', remitosRoutes);
-
+app.use('/api', produccionRoutes)
 
 
 app.listen(port, () => {
