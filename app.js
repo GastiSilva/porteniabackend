@@ -8,29 +8,26 @@ import usuariosRoutes from './routes/usurios.routes.js';
 import remitosRoutes from './routes/remitos.routes.js';
 import produccionRoutes from './routes/produccion.routes.js';
 import productoRoutes from './routes/productos.routes.js';
-// import exportsRoutes from './routes/exports.routes.js'
 
 //modelos
-import './models/Producto.js';
-import './models/Usuario.js';
-import './models/VentasMercaderia.js';
-import './models/Devolucion.js';
-import './models/Produccion.js';
-import './models/Proveedor.js';
-import './models/Solicitantes.js';
-import './models/Clientes.js';
-import './models/Vendedores.js';
+// import './models/Usuario.js';
+// import './models/Proveedor.js';
+// import './models/Producto.js';
+// import './models/VentasMercaderia.js';
+// import './models/Devolucion.js';
+// import './models/Produccion.js';
+// import './models/Clientes.js';
+// import './models/Estados.js';
+// import './models/Vendedores.js';
+// import './models/MateriaPrima.js';
+// import './models/Concepto.js';
+// import './models/Compras.js';
+// import './models/IVACompras.js';
+// import './models/Gastos.js';
+// import './models/Egresos.js';
+// import './models/Ingresos.js'
 
-// import './models/Rubros.js';
-import './models/Estados.js';
-import './models/MateriaPrima.js';
-import './models/Concepto.js';
-// import './models/IVAventas.js';
-import './models/Compras.js';
-import './models/Gastos.js';
-import './models/Egresos.js';
-import './models/IVACompras.js';
-// import './models/Remito.js';
+// import './models/Solicitantes.js';
 
 
 const app = express();
@@ -54,14 +51,13 @@ app.use('/api', productoRoutes);
 
 
 app.listen(port, () => {
-  console.log(`Servidor corriendo en http://localhost:${port}`);
+  // console.log(`Servidor corriendo en http://localhost:${port}`);
 });
 
 
 async function main() {
   try {
     await sequelize.sync();
-    console.log('Conectado a PostgreSQL con Sequelize');
 
   } catch (error) {
     console.log('Error al conectar con PostgreSQL:', error)

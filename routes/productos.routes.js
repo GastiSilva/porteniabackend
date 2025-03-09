@@ -7,7 +7,6 @@ const router = Router();
 router.post('/FetchProducts', async (req, res) => {
     try {
         const productos = await Producto.findAll();
-        console.log('Productos obtenidos:', productos);
         res.json(productos);
 
     } catch (error) {
