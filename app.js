@@ -8,6 +8,7 @@ import usuariosRoutes from './routes/usurios.routes.js';
 import remitosRoutes from './routes/remitos.routes.js';
 import produccionRoutes from './routes/produccion.routes.js';
 import productoRoutes from './routes/productos.routes.js';
+import tablasRoutes from './routes/tablas.routes.js';
 
 //modelos
 // import './models/Usuario.js';
@@ -48,10 +49,11 @@ app.use('/api', usuariosRoutes);
 app.use('/api', remitosRoutes);
 app.use('/api', produccionRoutes);
 app.use('/api', productoRoutes);
+app.use('/api', tablasRoutes);
 
 
 app.listen(port, () => {
-  // console.log(`Servidor corriendo en http://localhost:${port}`);
+  console.log(`Servidor corriendo en http://localhost:${port}`);
 });
 
 
