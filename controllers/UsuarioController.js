@@ -4,7 +4,6 @@ import sequelize from '../config.js';
 
 export const autenticar = async (req, res) => {
   const { Usuario: nombreUsuario, Contrasenia } = req.body;
-  console.log('Datos recibidos en req.body:', req.body);
   try {
     const usuario = await Usuario.findOne({
       where: sequelize.where(

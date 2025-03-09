@@ -27,21 +27,13 @@ const Ingresos = sequelize.define('Ingresos', {
     type: DataTypes.DECIMAL,
     allowNull: false
   },
-  Super: {
-    type: DataTypes.DECIMAL,
-    allowNull: true
-  },
-  Ventas_diarias_fabrica: {
-    type: DataTypes.DECIMAL,
-    allowNull: true
-  },
-  Ventas_miguel: {
+  Id_Vendedor: {
     type: DataTypes.INTEGER,
-    allowNull: true
-  },
-  Ventas_leonardo: {
-    type: DataTypes.INTEGER,
-    allowNull: true
+    references: {
+      model: 'Vendedores',
+      key: 'Id_Vendedor'
+    },
+    allowNull: false
   },
   Cheque: {
     type: DataTypes.BOOLEAN,

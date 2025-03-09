@@ -2,7 +2,6 @@ import { DataTypes } from 'sequelize';
 
 export default {
   async up(queryInterface) {
-    console.log("Ejecutando migración: createProduccion");
     await queryInterface.createTable('Produccion', {
       id_Produccion: {
         type: DataTypes.INTEGER,

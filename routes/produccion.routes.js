@@ -9,9 +9,7 @@ const router = express.Router();
 router.post("/SaveInProduccion", async (req, res) => {
     try {
         const { productos } = req.body;
-        console.log(req.body);
-
-
+    
         if (!productos || !Array.isArray(productos)) {
             console.error("Datos inválidos:", productos);
             return res.status(400).json({ message: "Datos inválidos" });

@@ -21,7 +21,7 @@ const Devolucion = sequelize.define('Devolucion', {
     type: DataTypes.INTEGER,
     references: {
       model: 'Proveedor',
-      key: 'Id_Proveedor'
+      key: 'id_Proveedor'
     },
     allowNull: false
   },

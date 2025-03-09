@@ -1,5 +1,10 @@
 import { Sequelize } from 'sequelize';
-import config from './config/config.json' assert { type: "json" }; // Importa el archivo JSON con assert
+// import config from './config/config.json' assert { type: "json" }; // Importa el archivo JSON con assert
+import { readFileSync } from 'fs';
+
+const config = JSON.parse(readFileSync('./config/config.json', 'utf-8'));
+
+
 
 // Determina el entorno, normalmente "development" o "production"
 const env = process.env.NODE_ENV || 'development';
