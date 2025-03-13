@@ -47,9 +47,9 @@ export const generarPDF= (req, res) => {
   // Texto dentro del segundo cuadro
   const textRightMarginX = cuadroDerechoX + 10;
   let textRightPositionY = cuadroDerechoY + 10;
-  doc.font('Helvetica-Bold').text('        PRESUPUESTO', textRightMarginX, textRightPositionY, { align: 'left' });
+  doc.font('Helvetica-Bold').text('PRESUPUESTO', textRightMarginX, textRightPositionY, { align: 'left' });
   textRightPositionY += 15;
-  doc.font('Helvetica').text('        DOCUMENTO NO VALIDO COMO FACTURA', textRightMarginX, textRightPositionY, { align: 'left' });
+  doc.font('Helvetica').text('DOCUMENTO NO VALIDO COMO FACTURA', textRightMarginX, textRightPositionY, { align: 'left' });
   textRightPositionY += 15;
   doc.text('N° 0001 - 00000001', textRightMarginX, textRightPositionY, { align: 'left' });
   textRightPositionY += 20;
@@ -122,8 +122,33 @@ export const generarPDF= (req, res) => {
   });
 
   // Total
-  doc.text('TOTAL:', tableX + 355, positionY + 20);
-  doc.text('_____________', tableX + 405, positionY + 20);
+  // Total en un recuadro al final del PDF a la derecha
+  const totalBoxX = tableX + 390;
+  const totalBoxY = positionY + 400;
+  const totalBoxWidth = 157;
+  const totalBoxHeight = 30;
+
+  // Dibujar el recuadro para el total
+  doc.rect(totalBoxX, totalBoxY, totalBoxWidth, totalBoxHeight).stroke();
+
+  // Texto dentro del recuadro del total
+  doc.font('Helvetica-Bold').fontSize(10).text('TOTAL:', totalBoxX + 5, totalBoxY + 10);
+  doc.font('Helvetica').text('_____________', totalBoxX + 45, totalBoxY + 10);
+
+
+  //Gusto caseroo
+  const gustoBoxX = tableX;
+  const gustoBoxY = positionY + 450;
+  const gustoBoxWidth = 550;
+  const gustoBoxHeight = 30;
+
+  // Dibujar el recuadro para el Gusto caseroo
+  doc.rect(gustoBoxX, gustoBoxY, gustoBoxWidth, gustoBoxHeight).stroke();
+
+  // Texto dentro del recuadro del Gusto caseroo
+  doc.font('Helvetica-Bold').fontSize(10).text('"EL GUSTO CASERO"', gustoBoxX + 5, gustoBoxY + 10,
+     { width: gustoBoxWidth - 10, height: gustoBoxHeight - 10, align: 'center', valign: 'center' });
+
 
   // Finalizar el documento
   doc.end();
