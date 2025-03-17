@@ -1,8 +1,11 @@
 import PDFDocument from 'pdfkit';
+import Remito from '../models/Remito.js';
+import RemitoProducto from '../models/RemitoProducto.js';
 
 // Función para generar y enviar el PDF
-export const generarPDF= (req, res) => {
+export const generarPDF = async (req, res) => {
   const doc = new PDFDocument();
+
 
   // Configurar los encabezados de la respuesta para la descarga del PDF
   res.setHeader('Content-disposition', 'attachment; filename=remito_fabrica.pdf');
@@ -10,6 +13,10 @@ export const generarPDF= (req, res) => {
 
   // Pipe el PDF a la respuesta
   doc.pipe(res);
+
+  //variables para su uso
+  const {Id_Remito} = req.params;
+  const remito = await Remito.findByPk(Id_Remito);
 
   // Dimensiones y posición del primer cuadro (izquierda)
   const cuadroIzquierdoX = 20;
