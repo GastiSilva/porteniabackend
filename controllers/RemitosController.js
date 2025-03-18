@@ -1,11 +1,50 @@
 import PDFDocument from 'pdfkit';
 import Remito from '../models/Remito.js';
+import Estado from '../models/Estados.js';
 import RemitoProducto from '../models/RemitoProducto.js';
+import Producto from '../models/Producto.js';
 
 // Función para generar y enviar el PDF
 export const generarPDF = async (req, res) => {
   const doc = new PDFDocument();
 
+  //variables para su uso
+
+  const {id} = req.params;
+  const remito = await Remito.findByPk(id, {
+    attributes: ['Id_Remito', 'Senior', 'Domicilio', 'Fecha', 'Id_Estado', 'remitoPDF']
+  });
+  
+  const RemitoProductoEncontrado = await RemitoProducto.findAll({
+    where: {  Id_Remito: id },
+    attributes: ['Id_RemitoProducto', 'Id_Remito', 'Id_Producto', 'Cantidad', 'PrecioUnit', 'PrecioTotal'] 
+  });
+
+  const EstadoEncontrado = await Estado.findByPk(remito.Id_Estado, {
+    attributes: ['Id_Estado', 'Estado']
+  });
+
+ const productosIds = RemitoProductoEncontrado.map(rp => rp.Id_Producto);
+
+const ProductoEncontrado = await Producto.findAll({
+  where: { Id_Producto: productosIds },
+  attributes: ['Id_Producto', 'Codigo', 'Nombre']
+});
+
+
+  console.log('Remito encontrado:', RemitoProductoEncontrado);
+  
+  console.log('Producto encontrado:', ProductoEncontrado);
+  
+
+  const anio = remito.Fecha.getFullYear();
+  const mes = remito.Fecha.getMonth();
+  const dia = remito.Fecha.getDate();
+  
+
+  if (!remito) {
+    return res.status(404).json({ error: 'Remito no encontrado' });
+  }
 
   // Configurar los encabezados de la respuesta para la descarga del PDF
   res.setHeader('Content-disposition', 'attachment; filename=remito_fabrica.pdf');
@@ -13,10 +52,6 @@ export const generarPDF = async (req, res) => {
 
   // Pipe el PDF a la respuesta
   doc.pipe(res);
-
-  //variables para su uso
-  const {Id_Remito} = req.params;
-  const remito = await Remito.findByPk(Id_Remito);
 
   // Dimensiones y posición del primer cuadro (izquierda)
   const cuadroIzquierdoX = 20;
@@ -60,7 +95,7 @@ export const generarPDF = async (req, res) => {
   textRightPositionY += 15;
   doc.text('N° 0001 - 00000001', textRightMarginX, textRightPositionY, { align: 'left' });
   textRightPositionY += 20;
-  doc.text('DIA:     MES:      AÑO:   ', textRightMarginX, textRightPositionY, { align: 'left' });
+  doc.text(`DIA: ${dia}  MES: ${mes}  AÑO: ${anio}`, textRightMarginX, textRightPositionY, { align: 'left' });
 
   // Cuadro de información del cliente, justo debajo de los dos cuadros con poca separación
   const cuadroDatosX = cuadroIzquierdoX;
@@ -74,9 +109,10 @@ export const generarPDF = async (req, res) => {
   // Texto dentro del cuadro de información del cliente
   const textDatosX = cuadroDatosX + 10;
   let textDatosY = cuadroDatosY + 10;
-  doc.text('SEÑOR(ES): ________________________________________________________', textDatosX, textDatosY, { align: 'left' });
+  // doc.text('SEÑOR(ES):${remito.senior} ________________________________________________________', textDatosX, textDatosY, { align: 'left' });
+  doc.text(`SEÑOR(ES): ${remito?.Senior}`, textDatosX, textDatosY, { align: 'left' });
   textDatosY += 15;
-  doc.text('DOMICILIO: ________________________________________________________', textDatosX, textDatosY, { align: 'left' });
+  doc.text(`DOMICILIO: ${remito?.Domicilio}`, textDatosX, textDatosY, { align: 'left' });
 
   // Línea separadora
   doc.moveTo(20, cuadroDatosY + cuadroDatosHeight + 10).lineTo(550, cuadroDatosY + cuadroDatosHeight + 10).stroke();
@@ -128,6 +164,17 @@ export const generarPDF = async (req, res) => {
     positionY += 20;
   });
 
+
+//Estado
+const estadoBoxX = tableX + 230;
+const estadoBoxY = positionY + 400;
+const estadoBoxWidth = 157;
+const estadoBoxHeight = 30;
+
+doc.rect(estadoBoxX, estadoBoxY, estadoBoxWidth, estadoBoxHeight).stroke();
+doc.font('Helvetica-Bold').fontSize(10).text('Estado:', estadoBoxX + 5, estadoBoxY + 10);
+doc.font('Helvetica').text(EstadoEncontrado.Estado, estadoBoxX + 45, estadoBoxY + 10);
+
   // Total
   // Total en un recuadro al final del PDF a la derecha
   const totalBoxX = tableX + 390;
@@ -149,10 +196,7 @@ export const generarPDF = async (req, res) => {
   const gustoBoxWidth = 550;
   const gustoBoxHeight = 30;
 
-  // Dibujar el recuadro para el Gusto caseroo
   doc.rect(gustoBoxX, gustoBoxY, gustoBoxWidth, gustoBoxHeight).stroke();
-
-  // Texto dentro del recuadro del Gusto caseroo
   doc.font('Helvetica-Bold').fontSize(10).text('"EL GUSTO CASERO"', gustoBoxX + 5, gustoBoxY + 10,
      { width: gustoBoxWidth - 10, height: gustoBoxHeight - 10, align: 'center', valign: 'center' });
 

@@ -5,7 +5,7 @@ import {crearRemito} from '../controllers/CrearRemitoController.js';
 const router = express.Router();
 
 // Ruta de autenticación
-router.post('/generarRemito', generarPDF);
+router.get('/generarRemito/:id', generarPDF);
 
 router.post('/altaRemitos', crearRemito);
 
