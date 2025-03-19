@@ -1,8 +1,8 @@
 import express from 'express';
-import { obtenerEstados } from '../controllers/EstadoController.js';
+import { obtenerEstadosTodos } from '../controllers/EstadoController.js';
 
 const router = express.Router();
 
-router.get('/estadosTodos', obtenerEstados);
+router.get('/estadosTodos', obtenerEstadosTodos);
 
 export default router;
