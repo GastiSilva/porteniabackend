@@ -9,7 +9,7 @@ router.get('/tablasTodas', async (req, res) => {
         console.log("Consulta SQL:", query);
 
         const [result] = await sequelize.query(query);
-        const filteredResult = result.filter(table => !['Usuarios', 'Conceptos','Estados'].includes(table.table_name));
+        const filteredResult = result.filter(table => !['Conceptos','Estados'].includes(table.table_name));
 
         res.json(filteredResult);
     } catch (error) {
@@ -17,6 +17,24 @@ router.get('/tablasTodas', async (req, res) => {
         res.status(500).json({ error: "Error al obtener las tablas" });
     }
 });
+
+
+router.get('/tablasExcell', async (req, res) => {
+    try {
+        const query = "SELECT tablename as table_name FROM pg_catalog.pg_tables WHERE schemaname = 'public'";
+        console.log("Consulta SQL:", query);
+
+        const [result] = await sequelize.query(query);
+        const filteredResult = result.filter(table => !['Usuarios','Conceptos','Estados','Productos',
+             'Proveedor','Remito', 'RemitoProducto' ].includes(table.table_name));
+        res.json(filteredResult);
+    } catch (error) {
+        console.error("Error al obtener las tablas:", error);
+        res.status(500).json({ error: "Error al obtener las tablas" });
+    }
+});
+
+
 
 router.get('/datosTablas/:tableName', async (req, res) => {
     const { tableName } = req.params;
