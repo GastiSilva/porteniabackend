@@ -202,5 +202,27 @@ doc.font('Helvetica').text(EstadoEncontrado.Estado, estadoBoxX + 45, estadoBoxY 
   doc.end();
 };
 
+
+export const obtenerRemitos = async (req, res) => {   
+  try {
+    const remitos = await Remito.findAll({
+      attributes: ['Id_Remito', 'Senior', 'Fecha', 'Id_Estado', 'remitoPDF']
+    });
+    const remitosConEstado = await Promise.all(remitos.map(async (remito) => {
+      const estado = await Estado.findByPk(remito.Id_Estado, {
+      attributes: ['Id_Estado', 'Estado']
+      });
+      return {
+      ...remito.toJSON(),
+      Estado: estado
+      };
+    }));
+    res.status(200).json(remitosConEstado);
+    res.status(200).json(remitos);
+  } catch (error) {
+    res.status(500).json({ error: 'Error al obtener los remitos' });
+  }
+};
+
 // Exportar el controlador
 export default { generarPDF };  
