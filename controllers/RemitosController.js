@@ -225,4 +225,4 @@ export const obtenerRemitos = async (req, res) => {
 };
 
 // Exportar el controlador
-export default { generarPDF };  
+export default { generarPDF, obtenerRemitos };  

@@ -1,7 +1,7 @@
 import Estado from "../models/Estados.js";
-// import sequelize from "../config.js";
 
-export const obtenerEstados = async (req, res) => {
+
+export const obtenerEstadosTodos = async (req, res) => {
   try {
     const estados = await Estado.findAll();
     res.json(estados);
@@ -10,4 +10,4 @@ export const obtenerEstados = async (req, res) => {
   }
 }
 
-export default { obtenerEstados };
+export default { obtenerEstadosTodos };
