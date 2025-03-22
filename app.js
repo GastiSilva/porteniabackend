@@ -10,6 +10,7 @@ import produccionRoutes from './routes/produccion.routes.js';
 import productoRoutes from './routes/productos.routes.js';
 import tablasRoutes from './routes/tablas.routes.js';
 import estadosRoutes from './routes/estados.routes.js';
+import devolucionroutes from './routes/devolucion.routes.js';
 
 //modelos
 // import './models/Usuario.js';
@@ -54,6 +55,7 @@ app.use('/api', produccionRoutes);
 app.use('/api', productoRoutes);
 app.use('/api', tablasRoutes);
 app.use('/api', estadosRoutes);
+app.use('/api', devolucionroutes);
 
 
 app.listen(port, () => {
