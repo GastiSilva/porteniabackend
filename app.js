@@ -9,6 +9,8 @@ import remitosRoutes from './routes/remitos.routes.js';
 import produccionRoutes from './routes/produccion.routes.js';
 import productoRoutes from './routes/productos.routes.js';
 import tablasRoutes from './routes/tablas.routes.js';
+import estadosRoutes from './routes/estados.routes.js';
+import devolucionroutes from './routes/devolucion.routes.js';
 
 //modelos
 // import './models/Usuario.js';
@@ -28,7 +30,9 @@ import tablasRoutes from './routes/tablas.routes.js';
 // import './models/Egresos.js';
 // import './models/Ingresos.js'
 
-// import './models/Solicitantes.js';
+import './models/Remito.js';
+import './models/RemitoProducto.js';
+
 
 
 const app = express();
@@ -50,6 +54,8 @@ app.use('/api', remitosRoutes);
 app.use('/api', produccionRoutes);
 app.use('/api', productoRoutes);
 app.use('/api', tablasRoutes);
+app.use('/api', estadosRoutes);
+app.use('/api', devolucionroutes);
 
 
 app.listen(port, () => {

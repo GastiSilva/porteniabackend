@@ -1,71 +1,49 @@
-import { DataTypes } from 'sequelize';
-import sequelize from '../config.js';
-import Proveedor from './Proveedor.js';
-import Producto from './Producto.js';
-import Estado from './Estados.js';
+import { DataTypes } from "sequelize";
+import sequelize from "../config.js";
+import Estado from "./Estados.js";
 
-const Remito = sequelize.define('Remito', {
-  Id_Remito: {
-    type: DataTypes.INTEGER,
-    primaryKey: true,
-    autoIncrement: true
+const Remito = sequelize.define(
+  "Remito",
+  {
+    Id_Remito: {
+      type: DataTypes.INTEGER,
+      primaryKey: true,
+      autoIncrement: true,
+    },
+    Senior: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    Domicilio: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    Fecha: {
+      type: DataTypes.DATE,
+      allowNull: false,
+      defaultValue: DataTypes.NOW,
+    },
+    Id_Estado: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      defaultValue: 1,
+      references: {
+        model: Estado,
+        key: "Id_Estado",
+      },
+    },
+    remitoPDF: {
+      type: DataTypes.BLOB("long"), // Guarda el archivo PDF en la base de datos
+      allowNull: true,
+    },
   },
-  Id_Proveedor: {
-    type: DataTypes.INTEGER,
-    allowNull: false,
-    references: {
-      model: Proveedor,
-      key: 'Id_Proveedor'
-    }
-  },
-  Id_Producto: {
-    type: DataTypes.INTEGER,
-    allowNull: false,
-    references: {
-      model: Producto,
-      key: 'Id_Producto'
-    }
-  },
-  Numero: {
-    type: DataTypes.INTEGER,
-    allowNull: false
-  },
-  PrecioUnit: {
-    type: DataTypes.DECIMAL,
-    allowNull: false
-  },
-  Cantidad: {
-    type: DataTypes.INTEGER,
-    allowNull: false
-  },
-  Total: {
-    type: DataTypes.DECIMAL,
-    allowNull: false
-  },
-  Subtotal: {
-    type: DataTypes.DECIMAL,
-    allowNull: false
-  },
-  Id_Estado: {
-    type: DataTypes.BOOLEAN,
-    allowNull: false,
-    references: {
-      model: Estado,
-      key: 'Id_Estado'
-    }
-  },
-  Modelo: {
-    type: DataTypes.BLOB,
-    allowNull: true
+  {
+    tableName: "Remito",
+    timestamps: false,
   }
-}, {
-  tableName: 'Remito',
-  timestamps: true
-});
+);
 
-// Definir relaciones
-Remito.belongsTo(Proveedor, { foreignKey: 'Id_Proveedor', as: 'Proveedor' });
-Remito.belongsTo(Producto, { foreignKey: 'Id_Producto', as: 'Producto' });
-Remito.belongsTo(Estado, { foreignKey: 'Id_Estado', as: 'Estado' });
+// Relación con Estado
+Remito.belongsTo(Estado, { foreignKey: "Id_Estado", as: "Estado" });
 
 export default Remito;
