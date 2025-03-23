@@ -11,6 +11,7 @@ import productoRoutes from './routes/productos.routes.js';
 import tablasRoutes from './routes/tablas.routes.js';
 import estadosRoutes from './routes/estados.routes.js';
 import devolucionroutes from './routes/devolucion.routes.js';
+import ventamercaderia from './routes/ventamercaderia.routes.js';
 
 //modelos
 // import './models/Usuario.js';
@@ -56,6 +57,7 @@ app.use('/api', productoRoutes);
 app.use('/api', tablasRoutes);
 app.use('/api', estadosRoutes);
 app.use('/api', devolucionroutes);
+app.use('/api', ventamercaderia);
 
 
 app.listen(port, () => {

@@ -45,7 +45,6 @@ export async function guardarEnDevolucion(req, res) {
                 where: { id_Producto },
                 order: [['Fecha', 'ASC']], 
             });
-            console.log('🟢 Productos encontrados:', productos);
             let cantidadRestante = Cantidad;
         
             for (const producto of productos) {
