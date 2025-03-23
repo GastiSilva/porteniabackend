@@ -112,6 +112,8 @@ export const generarPDF = async (req, res) => {
   // Encabezado de la tabla con cuadros alrededor de cada columna
   const tableTop = cuadroDatosY + cuadroDatosHeight + 30;
   const tableX = cuadroIzquierdoX;
+  const tableTopInit = cuadroDatosY + cuadroDatosHeight + 30;
+  const tableXInit = cuadroIzquierdoX;
 
 //encabezados
   doc.font('Helvetica-Bold').fontSize(10);
@@ -136,6 +138,7 @@ export const generarPDF = async (req, res) => {
   const tableEndY = 700;
   doc.font('Helvetica'); // Volver a la fuente regular para el contenido de la tabla
   let positionY = tableTop + 20;
+  let positionYInit = tableTop + 20;
 
   const productData = RemitoProductoEncontrado.map(rp => {
     const producto = ProductoEncontrado.find(p => p.Id_Producto === rp.Id_Producto);
@@ -163,8 +166,8 @@ export const generarPDF = async (req, res) => {
   });
 
 //Estado
-const estadoBoxX = tableX + 230;
-const estadoBoxY = positionY + 400;
+const estadoBoxX = tableXInit + 230;
+const estadoBoxY = positionYInit + 460;
 const estadoBoxWidth = 157;
 const estadoBoxHeight = 30;
 
@@ -174,8 +177,8 @@ doc.font('Helvetica').text(EstadoEncontrado.Estado, estadoBoxX + 45, estadoBoxY 
 
   // Total
   // Total en un recuadro al final del PDF a la derecha
-  const totalBoxX = tableX + 390;
-  const totalBoxY = positionY + 400;
+  const totalBoxX = tableXInit + 390;
+  const totalBoxY = positionYInit + 460;
   const totalBoxWidth = 157;
   const totalBoxHeight = 30;
 
@@ -188,8 +191,8 @@ doc.font('Helvetica').text(EstadoEncontrado.Estado, estadoBoxX + 45, estadoBoxY 
 
 
   //Gusto caseroo
-  const gustoBoxX = tableX;
-  const gustoBoxY = positionY + 450;
+  const gustoBoxX = tableXInit;
+  const gustoBoxY = positionYInit + 510;
   const gustoBoxWidth = 550;
   const gustoBoxHeight = 30;
 
