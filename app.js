@@ -4,11 +4,14 @@ import cors from "cors";
 import bodyParser from "body-parser";
 
 //rutas
-import usuariosRoutes from "./routes/usurios.routes.js";
-import remitosRoutes from "./routes/remitos.routes.js";
-import produccionRoutes from "./routes/produccion.routes.js";
-import productoRoutes from "./routes/productos.routes.js";
-import tablasRoutes from "./routes/tablas.routes.js";
+import usuariosRoutes from './routes/usurios.routes.js';
+import remitosRoutes from './routes/remitos.routes.js';
+import produccionRoutes from './routes/produccion.routes.js';
+import productoRoutes from './routes/productos.routes.js';
+import tablasRoutes from './routes/tablas.routes.js';
+import estadosRoutes from './routes/estados.routes.js';
+import devolucionroutes from './routes/devolucion.routes.js';
+import ventamercaderia from './routes/ventamercaderia.routes.js';
 
 //modelos
 import "./models/Usuario.js";
@@ -28,7 +31,10 @@ import "./models/Gastos.js";
 import "./models/Egresos.js";
 import "./models/Ingresos.js";
 
-// import './models/Solicitantes.js';
+import './models/Remito.js';
+import './models/RemitoProducto.js';
+
+
 
 const app = express();
 const port = 3000;
@@ -45,11 +51,14 @@ app.get("/", (req, res) => {
   res.send("¡Hola, Express!");
 });
 
-app.use("/api", usuariosRoutes);
-app.use("/api", remitosRoutes);
-app.use("/api", produccionRoutes);
-app.use("/api", productoRoutes);
-app.use("/api", tablasRoutes);
+app.use('/api', usuariosRoutes);
+app.use('/api', remitosRoutes);
+app.use('/api', produccionRoutes);
+app.use('/api', productoRoutes);
+app.use('/api', tablasRoutes);
+app.use('/api', estadosRoutes);
+app.use('/api', devolucionroutes);
+app.use('/api', ventamercaderia);
 
 app.listen(port, () => {
   console.log(`Servidor corriendo en http://localhost:${port}`);
