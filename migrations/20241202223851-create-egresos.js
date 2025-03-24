@@ -30,8 +30,8 @@ export default {
         type: DataTypes.INTEGER,
         allowNull: true,
         references: {
-          model: 'Proveedores', // Nombre de la tabla Proveedores
-          key: 'id_Proveedor', // Clave primaria de Proveedores
+          model: 'Proveedor', // Asegúrate de que coincide con tu modelo
+          key: 'Id_Proveedor', // Revisa que sea exactamente este nombre
         },
         onUpdate: 'CASCADE',
         onDelete: 'SET NULL',
@@ -40,8 +40,8 @@ export default {
         type: DataTypes.INTEGER,
         allowNull: true,
         references: {
-          model: 'Gastos', // Nombre de la tabla Gastos
-          key: 'Id_Gastos', // Clave primaria de Gastos
+          model: 'Gastos', // Verifica que el modelo también coincida
+          key: 'Id_Gastos',
         },
         onUpdate: 'CASCADE',
         onDelete: 'SET NULL',

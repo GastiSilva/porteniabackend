@@ -11,25 +11,26 @@ import productoRoutes from './routes/productos.routes.js';
 import tablasRoutes from './routes/tablas.routes.js';
 import estadosRoutes from './routes/estados.routes.js';
 import devolucionroutes from './routes/devolucion.routes.js';
-import ventamercaderia from './routes/ventamercaderia.routes.js';
+import ventamercaderiaroutes from './routes/ventamercaderia.routes.js';
+import proveedoresroutes from './routes/proveedores.routes.js';
 
 //modelos
-import "./models/Usuario.js";
-import "./models/Proveedor.js";
-import "./models/Producto.js";
-import "./models/VentasMercaderia.js";
-import "./models/Devolucion.js";
-import "./models/Produccion.js";
-import "./models/Clientes.js";
-import "./models/Estados.js";
-import "./models/Vendedores.js";
-import "./models/MateriaPrima.js";
-import "./models/Concepto.js";
-import "./models/Compras.js";
-import "./models/IVACompras.js";
-import "./models/Gastos.js";
-import "./models/Egresos.js";
-import "./models/Ingresos.js";
+// import './models/Usuario.js';
+// import './models/Proveedor.js';
+// import './models/Producto.js';
+// import './models/VentasMercaderia.js';
+// import './models/Devolucion.js';
+// import './models/Produccion.js';
+// import './models/Clientes.js';
+// import './models/Estados.js';
+// import './models/Vendedores.js';
+// import './models/MateriaPrima.js';
+// import './models/Concepto.js';
+// import './models/Compras.js';
+// import './models/IVACompras.js';
+// import './models/Gastos.js';
+import './models/Egresos.js';
+// import './models/Ingresos.js'
 
 import './models/Remito.js';
 import './models/RemitoProducto.js';
@@ -58,7 +59,8 @@ app.use('/api', productoRoutes);
 app.use('/api', tablasRoutes);
 app.use('/api', estadosRoutes);
 app.use('/api', devolucionroutes);
-app.use('/api', ventamercaderia);
+app.use('/api', ventamercaderiaroutes);
+app.use('/api', proveedoresroutes);
 
 app.listen(port, () => {
   console.log(`Servidor corriendo en http://localhost:${port}`);

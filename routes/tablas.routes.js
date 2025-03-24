@@ -55,75 +55,83 @@ router.get('/datosTablas/:tableName', async (req, res) => {
                 AND tc.table_name = '${tableName}'
                 AND tc.table_schema = 'public';
         `;
-
         const [foreignKeys] = await sequelize.query(fkQuery);
-        console.log("Claves Foráneas Encontradas:", foreignKeys);
+
 
         // Consulta para obtener los datos de la tabla principal
         const query = `SELECT * FROM "public"."${tableName}"`;
         const [result] = await sequelize.query(query);
-        
+
         if (result.length === 0) {
             // Si la tabla está vacía, obtener las columnas
             const columnQuery = `
                 SELECT column_name 
                 FROM information_schema.columns 
-                WHERE table_name = '${tableName}' AND table_schema = 'public'
+                WHERE table_name = '${tableName}' AND table_schema = 'public';
             `;
             const [columns] = await sequelize.query(columnQuery);
             const columnNames = columns.map(col => col.column_name);
             return res.json({ columns: columnNames });
         }
 
-        // Si hay claves foráneas, obtener los datos de las tablas referenciadas
+
+
+        
+        // Obtener los datos de las tablas referenciadas
         const foreignData = {};
         for (const fk of foreignKeys) {
             const foreignQuery = `SELECT * FROM "public"."${fk.foreign_table}"`;
             const [foreignRows] = await sequelize.query(foreignQuery);
             foreignData[fk.column_name] = foreignRows;
         }
+        console.log("Datos de tablas referenciadas:", foreignData);
+
+
+
 
         // Formatear el resultado
-        const formattedResult = result.map(row => {
-            const flattenedRow = { ...row };
+        const resultadoFormateado = result.map(row => {
+            const filaProcesada = { ...row };
 
             // Reemplazar ID de claves foráneas por datos completos y aplanarlos
             for (const fk of foreignKeys) {
                 const fkColumn = fk.column_name;
                 const relatedTableData = foreignData[fkColumn];
-                
+
                 if (row[fkColumn]) {
-                    const relatedRow = relatedTableData.find(
+                    const filaRelacionada = relatedTableData.find(
                         related => related[fk.foreign_column] === row[fkColumn]
                     );
 
-                    if (relatedRow) {
-                        // Aplanar el objeto de la tabla relacionada
-                        Object.keys(relatedRow).forEach(key => {
-                            // Crear una nueva columna con el nombre de la propiedad directamente
-                            flattenedRow[key] = relatedRow[key];
+                    if (filaRelacionada) {
+                        // Aplanar solo columnas no clave foránea
+                        Object.keys(filaRelacionada).forEach(key => {
+                            if (!key.toLowerCase().startsWith('id')) {
+                                filaProcesada[key] = filaRelacionada[key];
+                            }
                         });
                         // Eliminar la clave foránea original
-                        delete flattenedRow[fkColumn];
+                        delete filaProcesada[fkColumn];
                     }
                 }
             }
 
             // Formatear fecha si existe
-            if (flattenedRow.Fecha) {
-                const date = new Date(flattenedRow.Fecha);
-                flattenedRow.Fecha = `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
+            if (filaProcesada.Fecha) {
+                const date = new Date(filaProcesada.Fecha);
+                filaProcesada.Fecha = `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
             }
 
-            return flattenedRow;
+            return filaProcesada;
         });
 
-        res.json(formattedResult);
+        res.json(resultadoFormateado);
     } catch (error) {
         console.error("Error al obtener los datos de la tabla:", error);
         res.status(500).json({ error: "Error al obtener los datos de la tabla" });
     }
 });
+
 
 
 
