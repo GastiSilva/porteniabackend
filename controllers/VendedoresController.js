@@ -1,29 +1,29 @@
-import Proveedor from '../models/Proveedor.js';
+import Vendedores from '../models/Vendedores.js';
 import sequelize from '../config.js'
 
 
-export const registrarProveedor = async (req, res) => {
+export const registrarVendedor = async (req, res) => {
     const { Nombre, Cuit } = req.body;
 
     
     try {
-    const proveedorExistente = await Proveedor.findOne({
+    const vendedorExistente = await Vendedores.findOne({
       where: sequelize.where(
         sequelize.fn('LOWER', sequelize.col('Nombre')),
         Nombre.toLowerCase()
       )
     });
   
-      if (proveedorExistente) {
-        return res.status(400).json({ mensaje: 'El proveedor ya existe' });
+      if (vendedorExistente) {
+        return res.status(400).json({ mensaje: 'El vendedor ya existe' });
       }
   
-      const nuevoProveedor = await Proveedor.create({
+      const nuevoVendedor = await Vendedores.create({
         Nombre: Nombre,
         Cuit
       });
   
-      return res.status(201).json({ mensaje: 'Proveedor registrado exitosamente', proveedor: nuevoProveedor });
+      return res.status(201).json({ mensaje: 'Vendedor registrado exitosamente', vendedor: nuevoVendedor });
     } catch (error) {
       console.error('Error del servidor:', error);
       return res.status(500).json({ mensaje: 'Error del servidor' });
