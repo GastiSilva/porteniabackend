@@ -1,5 +1,5 @@
 import bcrypt from 'bcrypt';
-import Usuario from '../models/Usuario.js';
+import Usuario from "../models/Usuario.js";
 import sequelize from '../config.js';
 
 export const autenticar = async (req, res) => {
@@ -27,4 +27,39 @@ export const autenticar = async (req, res) => {
     return res.status(500).json({ mensaje: 'Error del servidor' });
   }
 };
+
+export const registrar = async (req, res) => {
+  const { Usuario: nombreUsuario, Contrasenia, Mail } = req.body;
+  console.log('Modelo Usuario:', Usuario);
+  console.log('Nombre de usuario recibido:', nombreUsuario);
+  console.log("Datos llegados desde mi front", req.body);
+  
+  try {
+    const usuarioExistente = await Usuario.findOne({
+      where: sequelize.where(
+        sequelize.fn('LOWER', sequelize.col('Usuario')),
+        nombreUsuario.toLowerCase()
+      )
+    });
+
+    if (usuarioExistente) {
+      return res.status(400).json({ mensaje: 'El usuario ya existe' });
+    }
+
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(Contrasenia, salt);
+
+    const nuevoUsuario = await Usuario.create({
+      Usuario: nombreUsuario,
+      Contrasenia: hashedPassword,
+      Mail
+    });
+
+    return res.status(201).json({ mensaje: 'Usuario registrado exitosamente', usuario: nuevoUsuario });
+  } catch (error) {
+    console.error('Error del servidor:', error);
+    return res.status(500).json({ mensaje: 'Error del servidor' });
+  }
+};
+
 
