@@ -29,3 +29,23 @@ export const registrarProveedor = async (req, res) => {
       return res.status(500).json({ mensaje: 'Error del servidor' });
     }
   };
+
+
+  export const eliminarProveedor = async (req, res) => {
+    const { id_Proveedor } = req.body;
+  
+    try {
+      const proveedor = await Proveedor.findByPk(id_Proveedor);
+  
+      if (!proveedor) {
+        return res.status(404).json({ mensaje: 'proveedor no encontrado' });
+      }
+  
+      await proveedor.destroy();
+  
+      return res.status(200).json({ mensaje: 'proveedor eliminado exitosamente' });
+    } catch (error) {
+      console.error('Error del servidor:', error);
+      return res.status(500).json({ mensaje: 'Error del servidor' });
+    }
+  };
