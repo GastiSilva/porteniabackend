@@ -1,4 +1,3 @@
-import e from "cors";
 import Produccion from "../models/Produccion.js";
 import Producto from "../models/Producto.js";
 import VentasMercaderia from "../models/VentasMercaderia.js";

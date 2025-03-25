@@ -11,6 +11,10 @@ const Usuario = sequelize.define('Usuarios', {
     type: DataTypes.STRING,
     allowNull: false
   },
+  Mail: {
+    type: DataTypes.STRING,
+    allowNull: false
+  },
   Contrasenia: {
     type: DataTypes.STRING,
     allowNull: false

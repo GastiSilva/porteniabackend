@@ -11,5 +11,7 @@ router.post('/altaRemitos', crearRemito);
 
 router.get('/obtenerRemitos', obtenerRemitos);
 
+// router.post('/obtenerRemitoPDF', obtenerPDF);
+
 
 export default router;

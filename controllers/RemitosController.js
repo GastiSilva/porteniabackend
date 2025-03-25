@@ -211,19 +211,37 @@ export const obtenerRemitos = async (req, res) => {
     const remitos = await Remito.findAll({
       attributes: ['Id_Remito', 'Senior', 'Fecha', 'Id_Estado', 'remitoPDF']
     });
+    
     const remitosConEstado = await Promise.all(remitos.map(async (remito) => {
       const estado = await Estado.findByPk(remito.Id_Estado, {
-      attributes: ['Id_Estado', 'Estado']
+        attributes: ['Id_Estado', 'Estado']
       });
       return {
-      ...remito.toJSON(),
-      Estado: estado
+        ...remito.toJSON(),
+        Estado: estado
       };
     }));
-    res.status(200).json(remitosConEstado);
-    res.status(200).json(remitos);
+
+    const remitosConTotal = await Promise.all(remitosConEstado.map(async (remito) => {
+      const remitoTotal = await RemitoProducto.findAll({
+      where: { Id_Remito: remito.Id_Remito },
+      attributes: ['PrecioTotal']
+      });
+
+      const total = remitoTotal.reduce((sum, rp) => sum + parseFloat(rp.toJSON().PrecioTotal || 0), 0);
+
+      return {
+      ...remito,
+      Total: total
+      };
+    }));
+
+    // Enviamos solo una respuesta
+    return res.status(200).json(remitosConTotal);
+    
   } catch (error) {
-    res.status(500).json({ error: 'Error al obtener los remitos' });
+    console.error('Error al obtener los remitos:', error);
+    return res.status(500).json({ error: 'Error al obtener los remitos' });
   }
 };
 

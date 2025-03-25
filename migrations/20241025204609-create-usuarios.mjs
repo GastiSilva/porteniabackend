@@ -12,6 +12,10 @@ export default {
                 type: DataTypes.STRING,
                 allowNull: false,
             },
+            Mail: {
+                type: DataTypes.STRING,
+                allowNull: false,
+            },
             Contrasenia: {
                 type: DataTypes.STRING,
                 allowNull: false,
