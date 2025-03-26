@@ -3,6 +3,7 @@ import Remito from '../models/Remito.js';
 import Estado from '../models/Estados.js';
 import RemitoProducto from '../models/RemitoProducto.js';
 import Producto from '../models/Producto.js';
+import { Writable } from 'stream';
 
 // Función para generar y enviar el PDF
 export const generarPDF = async (req, res) => {
@@ -43,9 +44,18 @@ export const generarPDF = async (req, res) => {
   // Configurar los encabezados de la respuesta para la descarga del PDF
   res.setHeader('Content-disposition', 'attachment; filename=remito_fabrica.pdf');
   res.setHeader('Content-type', 'application/pdf');
+  //buffer parab guardar remito
+  const buffers = [];
+  const writableStream = new Writable({
+    write(chunk, encoding, callback) {
+      buffers.push(chunk);
+      callback();
+    }
+  });
 
   // Pipe el PDF a la respuesta
   doc.pipe(res);
+  doc.pipe(writableStream);
 
   // Dimensiones y posición del primer cuadro (izquierda)
   const cuadroIzquierdoX = 20;
@@ -203,8 +213,16 @@ doc.font('Helvetica').text(EstadoEncontrado.Estado, estadoBoxX + 45, estadoBoxY 
 
   // Finalizar el documento
   doc.end();
-};
+  writableStream.on('finish', async () => {
+    const pdfBuffer = Buffer.concat(buffers);
 
+    // Actualizar el remito en la base de datos
+    await Remito.update(
+      { remitoPDF: pdfBuffer },
+      { where: { Id_Remito: id } }
+    );
+});
+}
 
 export const obtenerRemitos = async (req, res) => {   
   try {
@@ -245,5 +263,25 @@ export const obtenerRemitos = async (req, res) => {
   }
 };
 
+export const obtenerPDF = async (req, res) => {
+  const { Id_Remito } = req.body;
+
+  const remito = await Remito.findByPk(Id_Remito, {
+    attributes: ['remitoPDF']
+  });
+
+  if (!remito) {
+    return res.status(404).json({ error: 'Remito no encontrado' });
+  }
+
+  if (!remito.remitoPDF) {
+    return res.status(404).json({ error: 'PDF no encontrado' });
+  }
+
+  res.setHeader('Content-disposition', 'attachment; filename=remito_fabrica.pdf');
+  res.setHeader('Content-type', 'application/pdf');
+  res.send(remito.remitoPDF);
+};
+
 // Exportar el controlador
-export default { generarPDF, obtenerRemitos };  
+export default { generarPDF, obtenerRemitos, obtenerPDF }; 

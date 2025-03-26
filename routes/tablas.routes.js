@@ -9,7 +9,7 @@ router.get('/tablasTodas', async (req, res) => {
         console.log("Consulta SQL:", query);
 
         const [result] = await sequelize.query(query);
-        const filteredResult = result.filter(table => !['Conceptos','Estados'].includes(table.table_name));
+        const filteredResult = result.filter(table => !['Conceptos','Estados','Remito', 'RemitoProducto'].includes(table.table_name));
 
         res.json(filteredResult);
     } catch (error) {
