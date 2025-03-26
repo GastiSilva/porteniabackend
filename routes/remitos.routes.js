@@ -1,5 +1,5 @@
 import express from 'express';
-import  {generarPDF, obtenerRemitos }  from '../controllers/RemitosController.js';
+import  {generarPDF, obtenerRemitos, obtenerPDF }  from '../controllers/RemitosController.js';
 import {crearRemito} from '../controllers/CrearRemitoController.js';
 
 const router = express.Router();
@@ -11,7 +11,7 @@ router.post('/altaRemitos', crearRemito);
 
 router.get('/obtenerRemitos', obtenerRemitos);
 
-// router.post('/obtenerRemitoPDF', obtenerPDF);
+router.post('/obtenerRemitoPDF', obtenerPDF);
 
 
 export default router;
