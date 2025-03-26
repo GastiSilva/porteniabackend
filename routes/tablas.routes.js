@@ -1,5 +1,5 @@
 import { Router } from "express";
-import  sequelize  from "../config.js";
+import sequelize from "../config.js";
 
 const router = Router();
 
@@ -9,7 +9,7 @@ router.get('/tablasTodas', async (req, res) => {
         console.log("Consulta SQL:", query);
 
         const [result] = await sequelize.query(query);
-        const filteredResult = result.filter(table => !['Conceptos','Estados','Remito', 'RemitoProducto'].includes(table.table_name));
+        const filteredResult = result.filter(table => !['Conceptos', 'Estados', 'Remito', 'RemitoProducto'].includes(table.table_name));
 
         res.json(filteredResult);
     } catch (error) {
@@ -25,8 +25,8 @@ router.get('/tablasExcell', async (req, res) => {
         console.log("Consulta SQL:", query);
 
         const [result] = await sequelize.query(query);
-        const filteredResult = result.filter(table => !['Usuarios','Conceptos','Estados','Productos',
-             'Proveedor','Remito', 'RemitoProducto' ].includes(table.table_name));
+        const filteredResult = result.filter(table => !['Usuarios', 'Conceptos', 'Estados', 'Productos',
+            'Proveedor', 'Remito', 'RemitoProducto'].includes(table.table_name));
         res.json(filteredResult);
     } catch (error) {
         console.error("Error al obtener las tablas:", error);
@@ -35,7 +35,7 @@ router.get('/tablasExcell', async (req, res) => {
 });
 
 
-
+//METODO PARA LAS TABLAS
 router.get('/datosTablas/:tableName', async (req, res) => {
     const { tableName } = req.params;
     try {
@@ -76,7 +76,7 @@ router.get('/datosTablas/:tableName', async (req, res) => {
 
 
 
-        
+
         // Obtener los datos de las tablas referenciadas
         const foreignData = {};
         for (const fk of foreignKeys) {
@@ -132,6 +132,58 @@ router.get('/datosTablas/:tableName', async (req, res) => {
     }
 });
 
+
+//METODO PARA EL FORMS
+router.get('/datosTablasForms/:tableName', async (req, res) => {
+    const { tableName } = req.params;
+    try {
+        // Consulta las columnas y detecta claves foráneas
+        const fkQuery = `
+            SELECT 
+                kcu.column_name, 
+                ccu.table_name AS foreign_table,
+                ccu.column_name AS foreign_column
+            FROM information_schema.table_constraints AS tc
+            JOIN information_schema.key_column_usage AS kcu
+                ON tc.constraint_name = kcu.constraint_name
+                AND tc.table_name = kcu.table_name
+            JOIN information_schema.constraint_column_usage AS ccu
+                ON ccu.constraint_name = tc.constraint_name
+            WHERE tc.constraint_type = 'FOREIGN KEY'
+                AND tc.table_name = '${tableName}'
+                AND tc.table_schema = 'public';
+        `;
+
+        const [foreignKeys] = await sequelize.query(fkQuery);
+        console.log("Claves Foráneas Encontradas:", foreignKeys);
+
+        // Consulta para obtener los nombres de las columnas de la tabla principal
+        const columnQuery = `
+            SELECT column_name 
+            FROM information_schema.columns 
+            WHERE table_name = '${tableName}' AND table_schema = 'public';
+        `;
+        const [columns] = await sequelize.query(columnQuery);
+        const columnNames = columns.map(col => col.column_name);
+
+        // Si hay claves foráneas, obtener los nombres de las columnas de las tablas referenciadas
+        const foreignColumns = {};
+        for (const fk of foreignKeys) {
+            const foreignColumnQuery = `
+                SELECT column_name 
+                FROM information_schema.columns 
+                WHERE table_name = '${fk.foreign_table}' AND table_schema = 'public';
+            `;
+            const [foreignCols] = await sequelize.query(foreignColumnQuery);
+            foreignColumns[fk.column_name] = foreignCols.map(col => col.column_name);
+        }
+
+        res.json({ columns: columnNames, foreignColumns });
+    } catch (error) {
+        console.error("Error al obtener los datos de la tabla:", error);
+        res.status(500).json({ error: "Error al obtener los datos de la tabla" });
+    }
+});
 
 
 
