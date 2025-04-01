@@ -1,6 +1,7 @@
 import { DataTypes } from 'sequelize';
 import sequelize from '../config.js';
-
+import Clientes from './Clientes.js';
+import Proveedor from './Proveedor.js';
 
 const IVAVentas = sequelize.define('IVAVentas', {
   Id_IvaVentas: {
@@ -22,19 +23,19 @@ const IVAVentas = sequelize.define('IVAVentas', {
   },
   Id_Cliente: {
     type: DataTypes.INTEGER,
+    allowNull: false,
     references: {
-      model: 'Clientes',
+      model: Clientes,
       key: 'id_Cliente'
-    },
-    allowNull: false
+    }
   },
   Id_Proveedor: {
     type: DataTypes.INTEGER,
+    allowNull: false,
     references: {
-      model: 'Proveedor',
-      key: 'Id_Proveedor'
-    },
-    allowNull: false
+      model: Proveedor, 
+      key: 'id_Proveedor'
+    }
   },
   CondicionIva: {
     type: DataTypes.STRING,
@@ -45,36 +46,36 @@ const IVAVentas = sequelize.define('IVAVentas', {
     allowNull: false
   },
   IVA21: {
-    type: DataTypes.DECIMAL(10, 2), // Puedes ajustar la precisión si es necesario
+    type: DataTypes.DECIMAL(10,2),
     allowNull: false
   },
   IVA10_5: {
-    type: DataTypes.DECIMAL(10, 2),
+    type: DataTypes.DECIMAL(10,2),
     allowNull: false
   },
   Retenciones: {
-    type: DataTypes.INTEGER,
+    type: DataTypes.DECIMAL(10,2), 
     allowNull: false
   },
   ImporteTotal: {
-    type: DataTypes.INTEGER,
+    type: DataTypes.DECIMAL(10,2), 
     allowNull: false
   }
 }, {
   tableName: 'IVAVentas',
-  timestamps: true
+  timestamps: false
 });
 
-// Relación con Cliente (uno a muchos)
-// IVAVentas.belongsTo(Cliente, {
-//   foreignKey: 'id_Cliente',
-//   targetKey: 'Id_Cliente'
-// });
 
-// // Relación con Proveedor (uno a muchos)
-// IVAVentas.belongsTo(Proveedor, {
-//   foreignKey: 'id_Proveedor',
-//   targetKey: 'Id_Proveedor'
-// });
+IVAVentas.belongsTo(Clientes, {
+  foreignKey: 'Id_Cliente',
+  targetKey: 'id_Cliente'
+});
+
+
+IVAVentas.belongsTo(Proveedor, {
+  foreignKey: 'Id_Proveedor',
+  targetKey: 'id_Proveedor'
+});
 
 export default IVAVentas;

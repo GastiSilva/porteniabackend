@@ -1,5 +1,6 @@
 import { DataTypes } from 'sequelize';
 import sequelize from '../config.js';
+import Vendedores from './Vendedores.js';
 
 const Ingresos = sequelize.define('Ingresos', {
   Id_Ingreso: {
@@ -24,16 +25,16 @@ const Ingresos = sequelize.define('Ingresos', {
     allowNull: true
   },
   Total: {
-    type: DataTypes.DECIMAL,
+    type: DataTypes.DECIMAL(10, 2),
     allowNull: false
   },
   Id_Vendedor: {
     type: DataTypes.INTEGER,
+    allowNull: false,
     references: {
       model: 'Vendedores',
       key: 'Id_Vendedor'
-    },
-    allowNull: false
+    }
   },
   Cheque: {
     type: DataTypes.BOOLEAN,
@@ -49,7 +50,13 @@ const Ingresos = sequelize.define('Ingresos', {
   }
 }, {
   tableName: 'Ingresos',
-  timestamps: true
+  timestamps: false
+});
+
+// Definir la relación con Vendedores
+Ingresos.belongsTo(Vendedores, {
+  foreignKey: 'Id_Vendedor',
+  targetKey: 'Id_Vendedor'
 });
 
 export default Ingresos;

@@ -1,40 +1,40 @@
 import { DataTypes } from 'sequelize';
 import sequelize from '../config.js';
+import Producto from './Producto.js';
 
 const Devolucion = sequelize.define('Devolucion', {
   id_Devolucion: {
     type: DataTypes.INTEGER,
     primaryKey: true,
-    autoIncrement: true
+    autoIncrement: true,
   },
   id_Producto: {
     type: DataTypes.INTEGER,
     allowNull: false,
     references: {
-      model: 'Productos', // Nombre de la tabla referenciada
-      key: 'Id_Producto', // Nombre de la columna referenciada
+      model: 'Productos', 
+      key: 'Id_Producto', 
     },
-    field: 'id_Producto', 
     onUpdate: 'CASCADE',
     onDelete: 'CASCADE',
   },
   Fecha: {
     type: DataTypes.DATE,
-    allowNull: false
+    allowNull: false,
   },
   Cantidad: {
     type: DataTypes.INTEGER,
-    allowNull: false
-  }
+    allowNull: false,
+  },
 }, {
   tableName: 'Devolucion',
-  timestamps: true
+  timestamps: false, 
 });
 
-// Relación con Proveedor (uno a muchos)
-// Devolucion.belongsTo(Proveedor, {
-//   foreignKey: 'id_Proveedor',
-//   targetKey: 'Id_Proveedor'
-// });
+// Relación con Producto
+Devolucion.belongsTo(Producto, {
+  foreignKey: 'id_Producto', // Clave foránea en Devolucion
+  targetKey: 'Id_Producto',  // Clave primaria de Producto
+});
 
 export default Devolucion;
