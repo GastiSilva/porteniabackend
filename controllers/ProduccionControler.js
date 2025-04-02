@@ -46,8 +46,6 @@ export async function guardarEnProduccion(req, res) {
 export async function eliminarDeProduccion(req, res) {
     try {
         const { id, cantidad } = req.params;
-        console.log("body: ", req.params);
-
         if (!id || !cantidad) {
             console.error("Datos inválidos:", { id, cantidad });
             return res.status(400).json({ message: "Datos inválidos" });

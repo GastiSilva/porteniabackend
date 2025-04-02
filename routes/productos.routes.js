@@ -1,18 +1,12 @@
 import { Router } from "express";
-import Producto from "../models/Producto.js";
+import {exportarExcellProductos , cargarProductos} from "../controllers/ProductosController.js";
 
 const router = Router();
 
 
-router.post('/FetchProducts', async (req, res) => {
-    try {
-        const productos = await Producto.findAll();
-        res.json(productos);
+router.post('/FetchProducts', cargarProductos );
+router.get("/ExportarExcellProductos", exportarExcellProductos);
 
-    } catch (error) {
-        console.error('Error al obtener productos:', error);
-        res.status(500).json({ error: 'Error al obtener productos' });
-    }
-})
+
 
 export default router;

@@ -16,6 +16,7 @@ import proveedoresroutes from './routes/proveedores.routes.js';
 import vendedoresroutes from './routes/vendedores.routes.js';
 import clientesroutes from './routes/clientes.routes.js';
 import comprasroutes from './routes/compras.routes.js';
+import ingresosroutes from './routes/ingresos.routes.js';
 
 //modelos
 // // import './models/Usuario.js';
@@ -30,11 +31,11 @@ import comprasroutes from './routes/compras.routes.js';
 // // import './models/MateriaPrima.js';
 // // import './models/Concepto.js';
 // import './models/Compras.js';
-import './models/IVACompras.js';
-import './models/IVAventas.js';
+// import './models/IVACompras.js';
+// import './models/IVAventas.js';
 // // import './models/Gastos.js';
 // import './models/Egresos.js';
-// // import './models/Ingresos.js'
+// import './models/Ingresos.js'
 
 // import './models/Remito.js';
 // import './models/RemitoProducto.js';
@@ -66,6 +67,7 @@ app.use('/api', proveedoresroutes);
 app.use('/api', vendedoresroutes);
 app.use('/api', clientesroutes);
 app.use('/api', comprasroutes);
+app.use('/api', ingresosroutes);
 
 
 

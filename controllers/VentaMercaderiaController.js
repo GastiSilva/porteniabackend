@@ -2,6 +2,8 @@ import Produccion from "../models/Produccion.js";
 import Producto from "../models/Producto.js";
 import VentasMercaderia from "../models/VentasMercaderia.js";
 import sequelize from "sequelize";
+import ExcelJS from "exceljs";
+
 
 export async function guardarVentaMercaderia(req, res) {
     try {
@@ -72,12 +74,9 @@ export async function guardarVentaMercaderia(req, res) {
     }
 }
 
-
 export async function eliminarDeVentaMercaderia(req, res) {
     try {
         const { id, cantidad } = req.params;
-        console.log('ID:', id, 'Cantidad:', cantidad);
-
         if (!id || !cantidad) {
             console.error("Datos inválidos:", { id, cantidad });
             return res.status(400).json({ message: "Datos inválidos" });
@@ -123,4 +122,47 @@ export async function eliminarDeVentaMercaderia(req, res) {
     }
 }
 
-export default { guardarVentaMercaderia, eliminarDeVentaMercaderia };
+export async function exportarExcellVentas(req, res) {
+    try {
+        const ventasM = await VentasMercaderia.findAll({
+            include: [
+                {
+                    model: Producto,
+                    attributes: ["Codigo", "Nombre"],
+                },
+            ],
+        });
+
+        if (!ventasM || ventasM.length === 0) {
+            return res.status(404).json({ message: "No hay datos de producción para exportar." });
+        }
+
+        const workbook = new ExcelJS.Workbook();
+        const worksheet = workbook.addWorksheet("Ventas");
+
+        worksheet.columns = [
+            { header: "Código Producto", key: "Codigo", width: 20 },
+            { header: "Nombre Producto", key: "Nombre", width: 40 },
+            { header: "Cantidad", key: "Cantidad", width: 15 },
+        ];
+
+        ventasM.forEach((item) => {
+            worksheet.addRow({
+                Codigo: item.Producto.Codigo,
+                Nombre: item.Producto.Nombre,
+                Cantidad: item.Cantidad,
+            });
+        });
+
+        res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+        res.setHeader("Content-Disposition", "attachment; filename=ventasM.xlsx");
+
+        await workbook.xlsx.write(res);
+        res.end();
+    } catch (error) {
+        console.error("Error al exportar datos de Producción:", error);
+        return res.status(500).json({ message: "Error interno del servidor", error: error.message });
+    }
+}
+
+export default { guardarVentaMercaderia, eliminarDeVentaMercaderia, exportarExcellVentas };

@@ -1,50 +1,52 @@
 import { DataTypes } from 'sequelize';
 import sequelize from '../config.js';
-import Vendedores from './Vendedores.js';
+import Vendedor from './Vendedores.js'; 
 
 const Ingresos = sequelize.define('Ingresos', {
-  Id_Ingreso: {
+  id_Ingreso: {
     type: DataTypes.INTEGER,
     primaryKey: true,
     autoIncrement: true
   },
-  Fecha: {
+  fecha: {
     type: DataTypes.DATE,
     allowNull: false
   },
-  Nombre: {
+  nombre: {
     type: DataTypes.STRING,
     allowNull: false
   },
-  Detalle: {
+  detalle: {
     type: DataTypes.STRING,
     allowNull: true
   },
-  NComprobante: {
+  nComprobante: {
     type: DataTypes.INTEGER,
     allowNull: true
   },
-  Total: {
+  total: {
     type: DataTypes.DECIMAL(10, 2),
     allowNull: false
   },
-  Id_Vendedor: {
+  id_Vendedor: {
     type: DataTypes.INTEGER,
     allowNull: false,
     references: {
-      model: 'Vendedores',
+      model: Vendedor, 
       key: 'Id_Vendedor'
-    }
+    },
+    onUpdate: 'CASCADE',
+    onDelete: 'CASCADE'
   },
-  Cheque: {
+  cheque: {
     type: DataTypes.BOOLEAN,
     allowNull: true
   },
-  Efectivo: {
+  efectivo: {
     type: DataTypes.BOOLEAN,
     allowNull: true
   },
-  Transferencia: {
+  transferencia: {
     type: DataTypes.BOOLEAN,
     allowNull: true
   }
@@ -53,9 +55,9 @@ const Ingresos = sequelize.define('Ingresos', {
   timestamps: false
 });
 
-// Definir la relación con Vendedores
-Ingresos.belongsTo(Vendedores, {
-  foreignKey: 'Id_Vendedor',
+// Relación con Vendedor
+Ingresos.belongsTo(Vendedor, {
+  foreignKey: 'id_Vendedor',
   targetKey: 'Id_Vendedor'
 });
 

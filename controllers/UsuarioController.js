@@ -29,11 +29,7 @@ export const autenticar = async (req, res) => {
 };
 
 export const registrar = async (req, res) => {
-  const { Usuario: nombreUsuario, Contrasenia, Mail } = req.body;
-  console.log('Modelo Usuario:', Usuario);
-  console.log('Nombre de usuario recibido:', nombreUsuario);
-  console.log("Datos llegados desde mi front", req.body);
-  
+  const { Usuario: nombreUsuario, Contrasenia, Mail } = req.body; 
   try {
     const usuarioExistente = await Usuario.findOne({
       where: sequelize.where(

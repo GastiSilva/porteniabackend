@@ -6,7 +6,6 @@ const router = Router();
 router.get('/tablasTodas', async (req, res) => {
     try {
         const query = "SELECT tablename as table_name FROM pg_catalog.pg_tables WHERE schemaname = 'public'";
-        console.log("Consulta SQL:", query);
 
         const [result] = await sequelize.query(query);
         const filteredResult = result.filter(table => !['Conceptos', 'Estados', 'Remito', 'RemitoProducto'].includes(table.table_name));
@@ -22,10 +21,9 @@ router.get('/tablasTodas', async (req, res) => {
 router.get('/tablasExcell', async (req, res) => {
     try {
         const query = "SELECT tablename as table_name FROM pg_catalog.pg_tables WHERE schemaname = 'public'";
-        console.log("Consulta SQL:", query);
 
         const [result] = await sequelize.query(query);
-        const filteredResult = result.filter(table => !['Usuarios', 'Conceptos', 'Estados', 'Productos',
+        const filteredResult = result.filter(table => !['Usuarios', 'Conceptos', 'Estados',
             'Proveedor', 'Remito', 'RemitoProducto'].includes(table.table_name));
         res.json(filteredResult);
     } catch (error) {
@@ -84,7 +82,7 @@ router.get('/datosTablas/:tableName', async (req, res) => {
             const [foreignRows] = await sequelize.query(foreignQuery);
             foreignData[fk.column_name] = foreignRows;
         }
-        console.log("Datos de tablas referenciadas:", foreignData);
+
 
 
 
@@ -121,6 +119,10 @@ router.get('/datosTablas/:tableName', async (req, res) => {
                 const date = new Date(filaProcesada.Fecha);
                 filaProcesada.Fecha = `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
             }
+            if (filaProcesada.fecha) {
+                const date = new Date(filaProcesada.fecha);
+                filaProcesada.fecha = `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
+            }
 
             return filaProcesada;
         });
@@ -155,7 +157,6 @@ router.get('/datosTablasForms/:tableName', async (req, res) => {
         `;
 
         const [foreignKeys] = await sequelize.query(fkQuery);
-        console.log("Claves Foráneas Encontradas:", foreignKeys);
 
         // Consulta para obtener los nombres de las columnas de la tabla principal
         const columnQuery = `
