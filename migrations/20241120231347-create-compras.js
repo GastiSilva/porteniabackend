@@ -18,10 +18,10 @@ export default {
         type: DataTypes.INTEGER,
         allowNull: false,
         references: {
-          model: 'Conceptos',
-          key: 'id_Conceptos',
+          model: 'Proveedor', // ✅ Ahora apunta a la tabla correcta
+          key: 'Id_Proveedor', // ✅ Coincide con el modelo
         },
-        onUpdate: 'SET NULL',
+        onUpdate: 'CASCADE',
         onDelete: 'CASCADE',
       },
       Id_MateriaPrima: {
@@ -29,9 +29,9 @@ export default {
         allowNull: false,
         references: {
           model: 'MateriaPrima',
-          key: 'id_MateriaPrima',
+          key: 'Id_MateriaPrima',
         },
-        onUpdate: 'SET NULL',
+        onUpdate: 'CASCADE',
         onDelete: 'CASCADE',
       },
       Id_Concepto: {
@@ -39,7 +39,7 @@ export default {
         allowNull: false,
         references: {
           model: 'Conceptos',
-          key: 'id_Concepto',
+          key: 'Id_Concepto',
         },
         onUpdate: 'CASCADE',
         onDelete: 'CASCADE',

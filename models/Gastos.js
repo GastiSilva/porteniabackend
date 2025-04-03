@@ -1,5 +1,6 @@
 import { DataTypes } from 'sequelize';
 import sequelize from '../config.js';
+import TipoGastos from './TipoGastos.js';
 
 const Gastos = sequelize.define('Gastos', {
   Id_Gastos: {
@@ -7,9 +8,15 @@ const Gastos = sequelize.define('Gastos', {
     primaryKey: true,
     autoIncrement: true,
   },
-  Gastos: {
-    type: DataTypes.STRING,
+  Id_TipoGastos: {
+    type: DataTypes.INTEGER,
     allowNull: false,
+    references: {
+      model: TipoGastos,
+      key: 'Id_TipoGastos',
+    },
+    onUpdate: 'CASCADE',
+    onDelete: 'CASCADE',
   },
   Importe: {
     type: DataTypes.DECIMAL,
@@ -19,5 +26,11 @@ const Gastos = sequelize.define('Gastos', {
   tableName: 'Gastos',
   timestamps: false,
 });
+
+Gastos.belongsTo(TipoGastos, {
+    foreignKey: 'Id_TipoGastos',
+    targetKey: 'Id_TipoGastos'
+  });
+
 
 export default Gastos;

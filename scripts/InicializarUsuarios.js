@@ -25,7 +25,6 @@ sequelize.sync().then(async () => {
 
     if (!existeUsuario) {
       await Usuario.create(usuario);
-      console.log(`Usuario ${usuario.Usuario} creado.`);
     } else {
       console.log(`Usuario ${usuario.Usuario} ya existe.`);
     }

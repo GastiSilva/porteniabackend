@@ -1,8 +1,10 @@
 import { DataTypes } from 'sequelize';
 import sequelize from '../config.js';
+import Vendedor from './Vendedores.js'; 
+import Estado from './Estados.js';
 
 const Ingresos = sequelize.define('Ingresos', {
-  Id_Ingreso: {
+  id_Ingreso: {
     type: DataTypes.INTEGER,
     primaryKey: true,
     autoIncrement: true
@@ -19,21 +21,32 @@ const Ingresos = sequelize.define('Ingresos', {
     type: DataTypes.STRING,
     allowNull: true
   },
-  NComprobante: {
+  NroComprobante: {
     type: DataTypes.INTEGER,
     allowNull: true
   },
   Total: {
-    type: DataTypes.DECIMAL,
+    type: DataTypes.DECIMAL(10, 2),
     allowNull: false
   },
   Id_Vendedor: {
     type: DataTypes.INTEGER,
+    allowNull: false,
     references: {
-      model: 'Vendedores',
+      model: Vendedor, 
       key: 'Id_Vendedor'
     },
-    allowNull: false
+    onUpdate: 'CASCADE',
+    onDelete: 'CASCADE'
+  },
+  Id_Estado: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    defaultValue: 1,
+    references: {
+      model: Estado,
+      key: "Id_Estado",
+    },
   },
   Cheque: {
     type: DataTypes.BOOLEAN,
@@ -49,7 +62,15 @@ const Ingresos = sequelize.define('Ingresos', {
   }
 }, {
   tableName: 'Ingresos',
-  timestamps: true
+  timestamps: false
 });
+
+// Relación con Vendedor
+Ingresos.belongsTo(Vendedor, {
+  foreignKey: 'id_Vendedor',
+  targetKey: 'Id_Vendedor'
+});
+
+Ingresos.belongsTo(Estado, { foreignKey: "Id_Estado", targetKey: "Id_Estado" });
 
 export default Ingresos;

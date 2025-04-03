@@ -1,45 +1,41 @@
-import { DataTypes } from 'sequelize';
+import { DataTypes } from "sequelize";
 
 export default {
   async up(queryInterface) {
-    await queryInterface.createTable('Produccion', {
-      id_Produccion: {
-        type: DataTypes.INTEGER,
-        primaryKey: true,
-        autoIncrement: true
-      },
-      Id_Producto: {
-        type: DataTypes.INTEGER,
-        allowNull: false,
-        references: {
-          model: 'Productos',  // nombre de la tabla referenciada
-          key: 'Id_Producto',   // clave primaria de la tabla referenciada
+    await queryInterface.createTable(
+      "Produccion",
+      {
+        id_Produccion: {
+          type: DataTypes.INTEGER,
+          primaryKey: true,
+          autoIncrement: true,
         },
-        onDelete: 'SET NULL', // comportamiento al eliminar un producto
-        onUpdate: 'CASCADE', // comportamiento al actualizar un producto
+        Id_Producto: {
+          type: DataTypes.INTEGER,
+          allowNull: false,
+          references: {
+            model: "Productos", 
+            key: "Id_Producto",
+          },
+          onDelete: "CASCADE", 
+          onUpdate: "CASCADE",
+        },
+        Fecha: {
+          type: DataTypes.DATE,
+          allowNull: false,
+        },
+        Cantidad: {
+          type: DataTypes.INTEGER,
+          allowNull: false,
+        },
       },
-      Fecha: {
-        type: DataTypes.DATE,
-        allowNull: false
-      },
-      Cantidad: {
-        type: DataTypes.INTEGER,
-        allowNull: false
-      },
-      createdAt: {
-        type: DataTypes.DATE,
-        allowNull: false,
-        defaultValue: DataTypes.literal('CURRENT_TIMESTAMP')
-      },
-      updatedAt: {
-        type: DataTypes.DATE,
-        allowNull: false,
-        defaultValue: DataTypes.literal('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP')
+      {
+        timestamps: false, 
       }
-    });
+    );
   },
 
   async down(queryInterface) {
-    await queryInterface.dropTable('Produccion');
-  }
+    await queryInterface.dropTable("Produccion");
+  },
 };

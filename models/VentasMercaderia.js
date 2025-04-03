@@ -1,5 +1,6 @@
 import { DataTypes } from 'sequelize';
 import sequelize from '../config.js';
+import Producto from './Producto.js'; 
 
 const VentaMercaderia = sequelize.define('VentaMercaderia', {
   Id_VentaMercaderia: {
@@ -11,8 +12,8 @@ const VentaMercaderia = sequelize.define('VentaMercaderia', {
     type: DataTypes.INTEGER,
     allowNull: false,
     references: {
-      model: 'Productos', // Nombre de la tabla referenciada
-      key: 'Id_Producto', // Nombre de la columna referenciada
+      model: 'Productos', 
+      key: 'Id_Producto', 
     },
     onUpdate: 'CASCADE',
     onDelete: 'CASCADE',
@@ -27,7 +28,12 @@ const VentaMercaderia = sequelize.define('VentaMercaderia', {
   },
 }, {
   tableName: 'VentasMercaderia',
-  timestamps: true,
+  timestamps: false,
+});
+
+VentaMercaderia.belongsTo(Producto, {
+  foreignKey: 'id_Producto', 
+  targetKey: 'Id_Producto', 
 });
 
 export default VentaMercaderia;

@@ -47,7 +47,7 @@ const RemitoProducto = sequelize.define(
 );
 
 // Relaciones
-RemitoProducto.belongsTo(Remito, { foreignKey: "Id_Remito", as: "Remito" });
-RemitoProducto.belongsTo(Producto, { foreignKey: "Id_Producto", as: "Producto" });
+RemitoProducto.belongsTo(Remito, { foreignKey: "Id_Remito" });
+RemitoProducto.belongsTo(Producto, { foreignKey: "Id_Producto"});
 
 export default RemitoProducto;

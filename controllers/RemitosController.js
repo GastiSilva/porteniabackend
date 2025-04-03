@@ -20,7 +20,6 @@ export const generarPDF = async (req, res) => {
     where: {  Id_Remito: id },
     attributes: ['Id_RemitoProducto', 'Id_Remito', 'Id_Producto', 'Cantidad', 'PrecioUnit', 'PrecioTotal'] 
   });
-  console.log('RemitoProductoEncontrado:', RemitoProductoEncontrado);
 
   const EstadoEncontrado = await Estado.findByPk(remito.Id_Estado, {
     attributes: ['Id_Estado', 'Estado']
