@@ -1,5 +1,6 @@
 import Ingresos from "../models/Ingresos.js";
 import Vendedor from "../models/Vendedores.js";
+import Estado from "../models/Estados.js";
 import ExcelJS from "exceljs";
 
 export async function exportarExcellIngresos(req, res) {
@@ -9,6 +10,10 @@ export async function exportarExcellIngresos(req, res) {
                 {
                     model: Vendedor,
                     attributes: ["Nombre"],
+                },
+                {
+                    model: Estado,
+                    attributes: ["Estado"],
                 },
             ],
         });
@@ -23,26 +28,31 @@ export async function exportarExcellIngresos(req, res) {
         worksheet.columns = [
             { header: "Fecha", key: "Fecha", width: 15 },
             { header: "Descripcion", key: "Descripcion", width: 40 },
-            { header: "Comprobante", key: "Comprobante", width: 15 },
             { header: "NroComprobante", key: "Comprobante", width: 15 },
             { header: "Total", key: "Total", width: 15 },
             { header: "Vendedor", key: "Vendedor", width: 20 },
             { header: "Pago", key: "Pago", width: 15 },
+            { header: "Estado Pago", key: "EstadoPago", width: 15 },
         ];
+
+        worksheet.getRow(1).eachCell(cell => {
+            cell.font = { bold: true };
+          }); 
 
         ingresos.forEach((item) => {
             let metodoPago = "No especificado";
 
-            if (item.cheque) metodoPago = "Cheque";
-            else if (item.efectivo) metodoPago = "Efectivo";
-            else if (item.transferencia) metodoPago = "Transferencia";
+            if (item.Cheque) metodoPago = "Cheque";
+            else if (item.Efectivo) metodoPago = "Efectivo";
+            else if (item.Transferencia) metodoPago = "Transferencia";
             worksheet.addRow({
-                Fecha: item.fecha,
-                Descripcion: `${item.nombre} - ${item.detalle || "Sin detalle"}`,
-                Comprobante: item.nComprobante,
-                Total: item.total,
+                Fecha: item.Fecha,
+                Descripcion: `${item.Nombre} - ${item.Detalle || "Sin detalle"}`,
+                Comprobante: item.NroComprobante,
+                Total: item.Total,
                 Vendedor: item.Vendedor.Nombre,
                 Pago: metodoPago,
+                EstadoPago: item.Estado.Estado,
             });
         });
 

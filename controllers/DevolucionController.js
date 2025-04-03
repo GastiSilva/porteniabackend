@@ -97,6 +97,10 @@ export async function exportarExcellDevolucion(req, res) {
             { header: "Cantidad", key: "Cantidad", width: 15 },
         ];
 
+        worksheet.getRow(1).eachCell(cell => {
+            cell.font = { bold: true };
+          });
+          
         devolucion.forEach((item) => {
             worksheet.addRow({
                 Codigo: item.Producto.Codigo,

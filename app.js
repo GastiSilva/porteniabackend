@@ -30,15 +30,15 @@ import ingresosroutes from './routes/ingresos.routes.js';
 // // import './models/Vendedores.js';
 // // import './models/MateriaPrima.js';
 // // import './models/Concepto.js';
-// import './models/Compras.js';
+import './models/Compras.js';
 // import './models/IVACompras.js';
 // import './models/IVAventas.js';
-// // import './models/Gastos.js';
+// import './models/Gastos.js';
 // import './models/Egresos.js';
 // import './models/Ingresos.js'
-
 // import './models/Remito.js';
-// import './models/RemitoProducto.js';
+import './models/RemitoProducto.js';
+// import './models/TipoGastos.js';
 
 
 const app = express();

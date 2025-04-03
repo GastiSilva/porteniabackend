@@ -1,20 +1,9 @@
 import Producto from "../models/Producto.js";
 import ExcelJS from "exceljs";
 
-export async function cargarProductos() {
-    try {
-        const productos = await Producto.findAll();
-        return productos;
-    } catch (error) {
-        console.error("Error al obtener productos:", error);
-        throw new Error("Error al obtener productos");
-    }
-}
-
 export async function exportarExcellProductos(req, res) {
     try {
-        const productos = await Producto.findAll({
-        });
+        const productos = await Producto.findAll({});
 
         if (!productos || productos.length === 0) {
             return res.status(404).json({ message: "No hay datos de productos para exportar." });
@@ -27,6 +16,10 @@ export async function exportarExcellProductos(req, res) {
             { header: "Código Producto", key: "Codigo", width: 15 },
             { header: "Nombre Producto", key: "Nombre", width: 50 },
         ];
+
+        worksheet.getRow(1).eachCell(cell => {
+            cell.font = { bold: true };
+          });
 
         productos.forEach((item) => {
             worksheet.addRow({
@@ -46,4 +39,4 @@ export async function exportarExcellProductos(req, res) {
     }
 }
 
-export default {cargarProductos, exportarExcellProductos}
+export default {exportarExcellProductos}

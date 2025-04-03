@@ -23,8 +23,8 @@ router.get('/tablasExcell', async (req, res) => {
         const query = "SELECT tablename as table_name FROM pg_catalog.pg_tables WHERE schemaname = 'public'";
 
         const [result] = await sequelize.query(query);
-        const filteredResult = result.filter(table => !['Usuarios', 'Conceptos', 'Estados',
-            'Proveedor', 'Remito', 'RemitoProducto'].includes(table.table_name));
+        const filteredResult = result.filter(table => !['Usuarios', 'Conceptos', 'Estados', 'Gastos', 'IVACompras', 'IVAVentas', 
+           'MateriaPrima', 'TipoGastos', 'Vendedores', 'Proveedor', 'Remito', 'RemitoProducto'].includes(table.table_name));
         res.json(filteredResult);
     } catch (error) {
         console.error("Error al obtener las tablas:", error);
@@ -72,20 +72,12 @@ router.get('/datosTablas/:tableName', async (req, res) => {
             return res.json({ columns: columnNames });
         }
 
-
-
-
-        // Obtener los datos de las tablas referenciadas
         const foreignData = {};
         for (const fk of foreignKeys) {
             const foreignQuery = `SELECT * FROM "public"."${fk.foreign_table}"`;
             const [foreignRows] = await sequelize.query(foreignQuery);
             foreignData[fk.column_name] = foreignRows;
         }
-
-
-
-
 
         // Formatear el resultado
         const resultadoFormateado = result.map(row => {
@@ -113,15 +105,9 @@ router.get('/datosTablas/:tableName', async (req, res) => {
                     }
                 }
             }
-
-            // Formatear fecha si existe
             if (filaProcesada.Fecha) {
                 const date = new Date(filaProcesada.Fecha);
                 filaProcesada.Fecha = `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
-            }
-            if (filaProcesada.fecha) {
-                const date = new Date(filaProcesada.fecha);
-                filaProcesada.fecha = `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
             }
 
             return filaProcesada;

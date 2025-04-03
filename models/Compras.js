@@ -1,8 +1,7 @@
 import { DataTypes } from "sequelize";
 import sequelize from "../config.js";
-import Proveedor from "./Proveedor.js";
 import MateriaPrima from "./MateriaPrima.js";
-import Conceptos from "./Concepto.js";
+import Estado from "./Estados.js"; 
 
 const Compras = sequelize.define(
   "Compras",
@@ -16,36 +15,41 @@ const Compras = sequelize.define(
       type: DataTypes.DATE,
       allowNull: false,
     },
-    id_Proveedor: {  // Cambié 'Id_Proveedor' a 'id_Proveedor' en minúsculas
+    id_MateriaPrima: {
       type: DataTypes.INTEGER,
       allowNull: false,
+      references: {
+        model: MateriaPrima,
+        key: "id_MateriaPrima",
+      },
+      onUpdate: "CASCADE",
+      onDelete: "CASCADE",
     },
-    id_MateriaPrima: {  // Cambié 'Id_MateriaPrima' a 'id_MateriaPrima' en minúsculas
+    Id_Estado: {
       type: DataTypes.INTEGER,
       allowNull: false,
-    },
-    id_Concepto: {  // Cambié 'Id_Concepto' a 'id_Concepto' en minúsculas
-      type: DataTypes.INTEGER,
-      allowNull: false,
+      defaultValue: 1,
+      references: {
+        model: Estado,
+        key: "Id_Estado",
+      },
+      onUpdate: "CASCADE",
+      onDelete: "SET NULL", 
     },
     Cantidad: {
       type: DataTypes.INTEGER,
       allowNull: false,
     },
     PrecioUnit: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.DECIMAL(10, 2),
       allowNull: false,
     },
     Factura_N: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.STRING,
       allowNull: false,
     },
     Importe: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-    },
-    Estado: {
-      type: DataTypes.BOOLEAN,
+      type: DataTypes.DECIMAL(10, 2),
       allowNull: false,
     },
   },
@@ -55,9 +59,8 @@ const Compras = sequelize.define(
   }
 );
 
-// Relación belongsTo asegurando que las claves foráneas coinciden con las primarias
-Compras.belongsTo(Proveedor, { foreignKey: "id_Proveedor" });
+// Definiendo las relaciones correctamente
 Compras.belongsTo(MateriaPrima, { foreignKey: "id_MateriaPrima" });
-Compras.belongsTo(Conceptos, { foreignKey: "id_Concepto" });
+Compras.belongsTo(Estado, { foreignKey: "Id_Estado" }); 
 
 export default Compras;
