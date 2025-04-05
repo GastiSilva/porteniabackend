@@ -96,7 +96,7 @@ export const generarPDF = async (req, res) => {
   textRightPositionY += 15;
   doc.font('Helvetica').text('DOCUMENTO NO VALIDO COMO FACTURA', textRightMarginX, textRightPositionY, { align: 'left' });
   textRightPositionY += 15;
-  doc.text('N° 0001 - 00000001', textRightMarginX, textRightPositionY, { align: 'left' });
+  doc.text(`N° 0001 - ${remito.Id_Remito.toString().padStart(8, '0')}`, textRightMarginX, textRightPositionY, { align: 'left' });
   textRightPositionY += 20;
   doc.text(`DIA: ${dia}  MES: ${mes}  AÑO: ${anio}`, textRightMarginX, textRightPositionY, { align: 'left' });
 
@@ -176,7 +176,7 @@ export const generarPDF = async (req, res) => {
 
 //Estado
 const estadoBoxX = tableXInit + 230;
-const estadoBoxY = positionYInit + 460;
+const estadoBoxY = positionYInit + 450;
 const estadoBoxWidth = 157;
 const estadoBoxHeight = 30;
 
@@ -187,7 +187,7 @@ doc.font('Helvetica').text(EstadoEncontrado.Estado, estadoBoxX + 45, estadoBoxY 
   // Total
   // Total en un recuadro al final del PDF a la derecha
   const totalBoxX = tableXInit + 390;
-  const totalBoxY = positionYInit + 460;
+  const totalBoxY = positionYInit + 450;
   const totalBoxWidth = 157;
   const totalBoxHeight = 30;
 
@@ -201,7 +201,7 @@ doc.font('Helvetica').text(EstadoEncontrado.Estado, estadoBoxX + 45, estadoBoxY 
 
   //Gusto caseroo
   const gustoBoxX = tableXInit;
-  const gustoBoxY = positionYInit + 510;
+  const gustoBoxY = positionYInit + 490;
   const gustoBoxWidth = 550;
   const gustoBoxHeight = 30;
 

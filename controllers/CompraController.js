@@ -1,6 +1,6 @@
-// import Compras from "../models/Compras.js";
-// import Proveedor from "../models/Proveedor.js";
-// import MateriaPrima from "../models/MateriaPrima.js";
+import Compras from "../models/Compras.js";
+import Estado from "../models/Estados.js";
+import MateriaPrima from "../models/MateriaPrima.js";
 import sequelize from '../config.js';
 import ExcelJS from "exceljs"
 
@@ -64,19 +64,22 @@ export const obtenerEstructuraCompras = async (req, res) => {
 };
 
 
-export async function exportarExcellProduccion(req, res) {
+export async function exportarExcellCompras(req, res) {
     try {
-        const produccion = await Produccion.findAll({
+        const compras = await Compras.findAll({
             include: [
                 {
-                    model: Producto,
-                    as: "Producto",
-                    attributes: ["Codigo", "Nombre"],
+                    model: Estado,
+                    attributes: ["Estado"],
+                },
+                {
+                    model: MateriaPrima,
+                    attributes: ["Nombre", "Marca","Fecha", "Cantidad", "PrecioUnitario", "PrecioTotal"],
                 },
             ],
         });
 
-        if (!produccion || produccion.length === 0) {
+        if (!compras || compras.length === 0) {
             return res.status(404).json({ message: "No hay datos de producción para exportar." });
         }
 
@@ -84,25 +87,40 @@ export async function exportarExcellProduccion(req, res) {
         const worksheet = workbook.addWorksheet("Producción");
 
         worksheet.columns = [
-            { header: "Código Producto", key: "Codigo", width: 20 },
-            { header: "Nombre Producto", key: "Nombre", width: 40 },
-            { header: "Cantidad", key: "Cantidad", width: 15 },
+            { header: "Fecha", key: "Fecha", width: 12 },
+            { header: "Nombre", key: "Nombre", width: 30 },
+            { header: "Marca", key: "Marca", width: 30 },
+            { header: "Factura", key: "Factura", width: 30 },
+            { header: "Cantidad", key: "Cantidad", width: 10 },
+            { header: "Precio Unitario", key: "PrecioUnitario", width: 20 },
+            { header: "Precio Total", key: "PrecioTotal", width: 20 },
+            { header: "Estado", key: "Estado", width: 20 },
+
         ];
 
         worksheet.getRow(1).eachCell(cell => {
             cell.font = { bold: true };
           });
 
-        produccion.forEach((item) => {
+        compras.forEach((item) => {
             worksheet.addRow({
-                Codigo: item.Producto.Codigo,
-                Nombre: item.Producto.Nombre,
+                Fecha: new Date(item.MateriaPrima.Fecha).toLocaleDateString('es-ES', {
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric'
+                }),
+                Nombre: item.MateriaPrima.Nombre,
+                Marca: item.MateriaPrima.Marca,
+                Factura: item.Factura_N,
                 Cantidad: item.Cantidad,
+                PrecioUnitario: item.PrecioUnit,
+                PrecioTotal: item.Importe,
+                Estado: item.Estado.Estado
             });
         });
 
         res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-        res.setHeader("Content-Disposition", "attachment; filename=produccion.xlsx");
+        res.setHeader("Content-Disposition", "attachment; filename=compras.xlsx");
 
         await workbook.xlsx.write(res);
         res.end();
@@ -111,3 +129,8 @@ export async function exportarExcellProduccion(req, res) {
         return res.status(500).json({ message: "Error interno del servidor", error: error.message });
     }
 }
+
+export default {
+    obtenerEstructuraCompras,
+    exportarExcellCompras
+};

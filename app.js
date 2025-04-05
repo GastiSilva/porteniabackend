@@ -17,27 +17,29 @@ import vendedoresroutes from './routes/vendedores.routes.js';
 import clientesroutes from './routes/clientes.routes.js';
 import comprasroutes from './routes/compras.routes.js';
 import ingresosroutes from './routes/ingresos.routes.js';
+import egresosRoutes from './routes/egresos.routes.js';
 
 //modelos
-// // import './models/Usuario.js';
-// // import './models/Proveedor.js';
-// // import './models/Producto.js';
+// import './models/Usuario.js';
+// import './models/Proveedor.js';
+// import './models/Producto.js';
 // import './models/VentasMercaderia.js';
-// // import './models/Devolucion.js';
+// import './models/Devolucion.js';
 // import './models/Produccion.js';
-// // import './models/Clientes.js';
-// // import './models/Estados.js';
-// // import './models/Vendedores.js';
-// // import './models/MateriaPrima.js';
-// // import './models/Concepto.js';
-import './models/Compras.js';
+// import './models/Clientes.js';
+// import './models/Estados.js';
+// import './models/Vendedores.js';
+// import './models/MateriaPrima.js';
+// import './models/Concepto.js';
+// import './models/Compras.js';
 // import './models/IVACompras.js';
 // import './models/IVAventas.js';
 // import './models/Gastos.js';
 // import './models/Egresos.js';
+// import './models/EgresoGastosAsosiaciones.js';
 // import './models/Ingresos.js'
 // import './models/Remito.js';
-import './models/RemitoProducto.js';
+// import './models/RemitoProducto.js';
 // import './models/TipoGastos.js';
 
 
@@ -68,6 +70,7 @@ app.use('/api', vendedoresroutes);
 app.use('/api', clientesroutes);
 app.use('/api', comprasroutes);
 app.use('/api', ingresosroutes);
+app.use('/api', egresosRoutes);
 
 
 

@@ -113,6 +113,15 @@ router.get('/datosTablas/:tableName', async (req, res) => {
             return filaProcesada;
         });
 
+        // Ordenar por la columna Fecha de forma descendente si existe
+        if (resultadoFormateado.length > 0 && resultadoFormateado[0].Fecha) {
+            resultadoFormateado.sort((a, b) => {
+                const dateA = new Date(a.Fecha.split('/').reverse().join('-'));
+                const dateB = new Date(b.Fecha.split('/').reverse().join('-'));
+                return dateB - dateA;
+            });
+        }
+
         res.json(resultadoFormateado);
     } catch (error) {
         console.error("Error al obtener los datos de la tabla:", error);

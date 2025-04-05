@@ -146,6 +146,10 @@ export async function exportarExcellVentas(req, res) {
             { header: "Cantidad", key: "Cantidad", width: 15 },
         ];
 
+        worksheet.getRow(1).eachCell(cell => {
+            cell.font = { bold: true };
+          });
+          
         ventasM.forEach((item) => {
             worksheet.addRow({
                 Codigo: item.Producto.Codigo,

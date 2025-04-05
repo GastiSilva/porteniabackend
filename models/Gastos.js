@@ -18,19 +18,23 @@ const Gastos = sequelize.define('Gastos', {
     onUpdate: 'CASCADE',
     onDelete: 'CASCADE',
   },
+  Id_Egresos: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    references: {
+      model: 'Egresos',
+      key: 'Id_Egresos',
+    },
+    onUpdate: 'CASCADE',
+    onDelete: 'CASCADE',
+  },
   Importe: {
     type: DataTypes.DECIMAL,
     allowNull: false,
-  }  
+  }
 }, {
   tableName: 'Gastos',
   timestamps: false,
 });
-
-Gastos.belongsTo(TipoGastos, {
-    foreignKey: 'Id_TipoGastos',
-    targetKey: 'Id_TipoGastos'
-  });
-
 
 export default Gastos;
