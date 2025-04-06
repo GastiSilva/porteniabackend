@@ -4,6 +4,9 @@ import Estado from '../models/Estados.js';
 import RemitoProducto from '../models/RemitoProducto.js';
 import Producto from '../models/Producto.js';
 import { Writable } from 'stream';
+import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc.js';
+dayjs.extend(utc);
 
 // Función para generar y enviar el PDF
 export const generarPDF = async (req, res) => {
@@ -31,9 +34,9 @@ export const generarPDF = async (req, res) => {
   });
 
   const totalOperacion = RemitoProductoEncontrado.reduce((total, rp) => total + rp.Cantidad * rp.PrecioTotal, 0);
-  const anio = remito.Fecha.getFullYear();
-  const mes = remito.Fecha.getMonth();
-  const dia = remito.Fecha.getDate();
+  const anio = dayjs(remito.Fecha).utc().year();
+  const mes = dayjs(remito.Fecha).utc().month() + 1; // Los meses en dayjs son 0-indexados
+  const dia = dayjs(remito.Fecha).utc().date();
   
 
   if (!remito) {

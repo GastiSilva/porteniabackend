@@ -1,5 +1,6 @@
 import { Router } from "express";
 import sequelize from "../config.js";
+import dayjs from 'dayjs';
 
 const router = Router();
 
@@ -23,8 +24,8 @@ router.get('/tablasExcell', async (req, res) => {
         const query = "SELECT tablename as table_name FROM pg_catalog.pg_tables WHERE schemaname = 'public'";
 
         const [result] = await sequelize.query(query);
-        const filteredResult = result.filter(table => !['Usuarios', 'Conceptos', 'Estados', 'Gastos', 'IVACompras', 'IVAVentas', 
-           'MateriaPrima', 'TipoGastos', 'Vendedores', 'Proveedor', 'Remito', 'RemitoProducto'].includes(table.table_name));
+        const filteredResult = result.filter(table => !['Usuarios', 'Conceptos', 'Estados', 'Gastos', 'IVACompras', 'IVAVentas',
+            'MateriaPrima', 'TipoGastos', 'Vendedores', 'Proveedor', 'Remito', 'RemitoProducto'].includes(table.table_name));
         res.json(filteredResult);
     } catch (error) {
         console.error("Error al obtener las tablas:", error);
@@ -36,8 +37,8 @@ router.get('/tablasExcell', async (req, res) => {
 //METODO PARA LAS TABLAS
 router.get('/datosTablas/:tableName', async (req, res) => {
     const { tableName } = req.params;
+    const { fechaDesde, fechaHasta } = req.query;
     try {
-        // Consulta las columnas y detecta claves foráneas
         const fkQuery = `
             SELECT 
                 kcu.column_name, 
@@ -55,13 +56,30 @@ router.get('/datosTablas/:tableName', async (req, res) => {
         `;
         const [foreignKeys] = await sequelize.query(fkQuery);
 
+        // Verificar si la tabla tiene la columna "Fecha"
+        const columnCheckQuery = `
+            SELECT column_name 
+            FROM information_schema.columns 
+            WHERE table_name = '${tableName}' 
+              AND column_name = 'Fecha'
+              AND table_schema = 'public';
+        `;
+        const [fechaColumnResult] = await sequelize.query(columnCheckQuery);
+        const tieneColumnaFecha = fechaColumnResult.length > 0;
 
-        // Consulta para obtener los datos de la tabla principal
-        const query = `SELECT * FROM "public"."${tableName}"`;
+        // Armar query principal con filtro si corresponde
+        let query = `SELECT * FROM "public"."${tableName}"`;
+        if (tieneColumnaFecha && fechaDesde && fechaHasta) {
+            const desde = dayjs(fechaDesde).startOf('day').toISOString(); 
+            const hasta = dayjs(fechaHasta).endOf('day').toISOString();   
+
+            query += ` WHERE "Fecha" BETWEEN '${desde}' AND '${hasta}'`;
+        }
+
         const [result] = await sequelize.query(query);
 
+        // Si no hay registros, devolver solo las columnas
         if (result.length === 0) {
-            // Si la tabla está vacía, obtener las columnas
             const columnQuery = `
                 SELECT column_name 
                 FROM information_schema.columns 
@@ -72,6 +90,7 @@ router.get('/datosTablas/:tableName', async (req, res) => {
             return res.json({ columns: columnNames });
         }
 
+        // Obtener los datos de las tablas relacionadas (por claves foráneas)
         const foreignData = {};
         for (const fk of foreignKeys) {
             const foreignQuery = `SELECT * FROM "public"."${fk.foreign_table}"`;
@@ -79,11 +98,11 @@ router.get('/datosTablas/:tableName', async (req, res) => {
             foreignData[fk.column_name] = foreignRows;
         }
 
-        // Formatear el resultado
+        // Procesar cada fila
         const resultadoFormateado = result.map(row => {
             const filaProcesada = { ...row };
-
-            // Reemplazar ID de claves foráneas por datos completos y aplanarlos
+            const fechaOriginal = filaProcesada.Fecha;
+            // Reemplazar claves foráneas por sus datos
             for (const fk of foreignKeys) {
                 const fkColumn = fk.column_name;
                 const relatedTableData = foreignData[fkColumn];
@@ -94,17 +113,17 @@ router.get('/datosTablas/:tableName', async (req, res) => {
                     );
 
                     if (filaRelacionada) {
-                        // Aplanar solo columnas no clave foránea
                         Object.keys(filaRelacionada).forEach(key => {
                             if (!key.toLowerCase().startsWith('id')) {
                                 filaProcesada[key] = filaRelacionada[key];
                             }
                         });
-                        // Eliminar la clave foránea original
                         delete filaProcesada[fkColumn];
                     }
                 }
             }
+            filaProcesada.Fecha = fechaOriginal;
+            // Formatear la fecha si existe
             if (filaProcesada.Fecha) {
                 const date = new Date(filaProcesada.Fecha);
                 filaProcesada.Fecha = `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
@@ -113,7 +132,7 @@ router.get('/datosTablas/:tableName', async (req, res) => {
             return filaProcesada;
         });
 
-        // Ordenar por la columna Fecha de forma descendente si existe
+        // Ordenar por fecha si existe
         if (resultadoFormateado.length > 0 && resultadoFormateado[0].Fecha) {
             resultadoFormateado.sort((a, b) => {
                 const dateA = new Date(a.Fecha.split('/').reverse().join('-'));

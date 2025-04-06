@@ -4,6 +4,6 @@ import { obtenerEstructuraCompras, exportarExcellCompras } from "../controllers/
 const router = express.Router();
 
 router.get("/compras", obtenerEstructuraCompras);
-router.get("/ExportarExcellCompras", exportarExcellCompras);
+router.post("/ExportarExcellCompras", exportarExcellCompras);
 
 export default router;

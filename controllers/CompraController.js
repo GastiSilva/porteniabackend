@@ -3,9 +3,8 @@ import Estado from "../models/Estados.js";
 import MateriaPrima from "../models/MateriaPrima.js";
 import sequelize from '../config.js';
 import ExcelJS from "exceljs"
-
-
-
+import dayjs from 'dayjs';
+import { Op } from "sequelize";
 
 export const obtenerEstructuraCompras = async (req, res) => {
     try {
@@ -66,7 +65,18 @@ export const obtenerEstructuraCompras = async (req, res) => {
 
 export async function exportarExcellCompras(req, res) {
     try {
+         const { fechaDesde, fechaHasta } = req.body;
+                const whereClause = {};
+                if (fechaDesde && fechaHasta) {
+                    const desde = dayjs(fechaDesde).startOf('day').toDate();
+                    const hasta = dayjs(fechaHasta).endOf('day').toDate();
+                    whereClause.Fecha = {
+                        [Op.between]: [desde, hasta],
+                    };
+                }
+                console.log("Filtro aplicado:", whereClause);
         const compras = await Compras.findAll({
+            where: whereClause,
             include: [
                 {
                     model: Estado,
@@ -74,7 +84,7 @@ export async function exportarExcellCompras(req, res) {
                 },
                 {
                     model: MateriaPrima,
-                    attributes: ["Nombre", "Marca","Fecha", "Cantidad", "PrecioUnitario", "PrecioTotal"],
+                    attributes: ["Nombre", "Marca", "Cantidad", "PrecioUnitario", "PrecioTotal"],
                 },
             ],
         });
@@ -104,11 +114,7 @@ export async function exportarExcellCompras(req, res) {
 
         compras.forEach((item) => {
             worksheet.addRow({
-                Fecha: new Date(item.MateriaPrima.Fecha).toLocaleDateString('es-ES', {
-                    day: '2-digit',
-                    month: '2-digit',
-                    year: 'numeric'
-                }),
+                Fecha: dayjs(item.Fecha).format('YYYY-MM-DD'),
                 Nombre: item.MateriaPrima.Nombre,
                 Marca: item.MateriaPrima.Marca,
                 Factura: item.Factura_N,

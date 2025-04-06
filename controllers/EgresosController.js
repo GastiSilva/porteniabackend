@@ -1,11 +1,22 @@
 import ExcelJS from "exceljs";
-
+import dayjs from 'dayjs';
+import { Op } from "sequelize";
 import { Egresos, Gastos, TipoGastos } from '../models/EgresoGastosAsosiaciones.js';
 
 export async function exportarExcellEgresos(req, res) {
     try {
-        //version original
+         const { fechaDesde, fechaHasta } = req.body;
+                const whereClause = {};
+                if (fechaDesde && fechaHasta) {
+                    const desde = dayjs(fechaDesde).startOf('day').toDate();
+                    const hasta = dayjs(fechaHasta).endOf('day').toDate();
+                    whereClause.Fecha = {
+                        [Op.between]: [desde, hasta],
+                    };
+                }
+
         const egresos = await Egresos.findAll({
+            where: whereClause,
             include: [
                 {
                     model: Gastos,
@@ -70,7 +81,7 @@ export async function exportarExcellEgresos(req, res) {
         // Agregar filas
         egresos.forEach((egreso) => {
             let rowData = {
-                Fecha: egreso.Fecha,
+                Fecha: dayjs(egreso.Fecha).format('YYYY-MM-DD'),
                 Concepto: egreso.Concepto,
                 Comprobante: egreso.Comprobante,
                 "Importe Total": egreso.ImporteTotal,
