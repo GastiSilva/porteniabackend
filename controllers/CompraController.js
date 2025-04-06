@@ -8,53 +8,38 @@ import { Op } from "sequelize";
 
 export const obtenerEstructuraCompras = async (req, res) => {
     try {
-        // Consulta para obtener la estructura de la tabla Compras
+        // Consulta para obtener la estructura de la tabla Compras, excluyendo claves foráneas
         const estructuraComprasQuery = `
             SELECT column_name, data_type
             FROM information_schema.columns
             WHERE table_name = 'Compras' 
             AND table_schema = 'public'
-            AND (column_name = 'Id_Compras' OR column_name NOT LIKE 'id%')
-            AND column_name NOT IN ('Id_Proveedor', 'Id_MateriaPrima', 'Id_Concepto');
+            AND column_name NOT LIKE 'Id_%'
+            AND column_name NOT LIKE 'id_%';
         `;
         const [estructuraCompras] = await sequelize.query(estructuraComprasQuery);
 
-        // Consulta para obtener la estructura de la tabla Proveedor
-        const estructuraProveedorQuery = `
-            SELECT column_name, data_type
-            FROM information_schema.columns
-            WHERE table_name = 'Proveedor' 
-            AND table_schema = 'public'
-            AND column_name NOT IN ('id_Proveedor');
-        `;
-        const [estructuraProveedor] = await sequelize.query(estructuraProveedorQuery);
+        // Consultas para obtener las estructuras de las tablas relacionadas, excluyendo claves foráneas
+        const tablasRelacionadas = ['MateriaPrima', 'Estados'];
+        const estructurasRelacionadas = {};
 
-        // Consulta para obtener la estructura de la tabla MateriaPrima
-        const estructuraMateriaPrimaQuery = `
-            SELECT column_name, data_type
-            FROM information_schema.columns
-            WHERE table_name = 'MateriaPrima' AND table_schema = 'public'
-            AND column_name NOT IN ('Id_VentaMercaderia', 'id_Produccion', 'id_MateriaPrima');
-        `;
-        const [estructuraMateriaPrima] = await sequelize.query(estructuraMateriaPrimaQuery);
-
-        // Consulta para obtener la estructura de la tabla Conceptos
-        const estructuraConceptosQuery = `
-            SELECT column_name, data_type
-            FROM information_schema.columns
-            WHERE table_name = 'Conceptos' 
-            AND table_schema = 'public'
-            
-            AND column_name NOT IN ('id_Concepto');
-        `;
-        const [estructuraConceptos] = await sequelize.query(estructuraConceptosQuery);
+        for (const tabla of tablasRelacionadas) {
+            const estructuraRelacionadaQuery = `
+                SELECT column_name, data_type
+                FROM information_schema.columns
+                WHERE table_name = '${tabla}' 
+                AND table_schema = 'public'
+                AND column_name NOT LIKE 'Id_%'
+                AND column_name NOT LIKE 'id_%';
+            `;
+            const [estructuraRelacionada] = await sequelize.query(estructuraRelacionadaQuery);
+            estructurasRelacionadas[tabla] = estructuraRelacionada;
+        }
 
         // Enviar las estructuras al frontend
         res.status(200).json({
             Compras: estructuraCompras,
-            Proveedor: estructuraProveedor,
-            MateriaPrima: estructuraMateriaPrima,
-            Conceptos: estructuraConceptos,
+            ...estructurasRelacionadas,
         });
     } catch (error) {
         console.error('Error al obtener la estructura de las tablas:', error);
