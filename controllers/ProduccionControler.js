@@ -1,6 +1,10 @@
 import Produccion from "../models/Produccion.js";
 import Producto from "../models/Producto.js";
 import ExcelJS from "exceljs";
+import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc.js';
+dayjs.extend(utc);
+import { Op } from "sequelize";
 
 export async function guardarEnProduccion(req, res) {
     try {
@@ -26,7 +30,7 @@ export async function guardarEnProduccion(req, res) {
                 const nuevoRegistro = await Produccion.create({
                     Id_Producto: id,
                     Cantidad: cantidad,
-                    Fecha: fecha,
+                    Fecha: dayjs(fecha).startOf('day').utc().format(),
                 });
                 registrosProduccion.push(nuevoRegistro);
             }
@@ -93,7 +97,18 @@ export async function eliminarDeProduccion(req, res) {
 
 export async function exportarExcellProduccion(req, res) {
     try {
+        const { fechaDesde, fechaHasta } = req.body;
+        const whereClause = {};
+        if (fechaDesde && fechaHasta) {
+            const desde = dayjs(fechaDesde).startOf('day').toDate();
+            const hasta = dayjs(fechaHasta).endOf('day').toDate();
+            whereClause.Fecha = {
+                [Op.between]: [desde, hasta],
+            };
+        }
+
         const produccion = await Produccion.findAll({
+            where: whereClause,
             include: [
                 {
                     model: Producto,
@@ -111,6 +126,7 @@ export async function exportarExcellProduccion(req, res) {
         const worksheet = workbook.addWorksheet("Producción");
 
         worksheet.columns = [
+            { header: "Fecha", key: "Fecha", width: 15 },
             { header: "Código Producto", key: "Codigo", width: 20 },
             { header: "Nombre Producto", key: "Nombre", width: 40 },
             { header: "Cantidad", key: "Cantidad", width: 15 },
@@ -118,12 +134,13 @@ export async function exportarExcellProduccion(req, res) {
 
         worksheet.getRow(1).eachCell(cell => {
             cell.font = { bold: true };
-          });
+        });
 
         produccion.forEach((item) => {
             worksheet.addRow({
-                Codigo: item.Producto.Codigo,
-                Nombre: item.Producto.Nombre,
+                Fecha: dayjs(item.Fecha).format('YYYY-MM-DD'),
+                Codigo: item.Producto?.Codigo,
+                Nombre: item.Producto?.Nombre,
                 Cantidad: item.Cantidad,
             });
         });
@@ -138,5 +155,6 @@ export async function exportarExcellProduccion(req, res) {
         return res.status(500).json({ message: "Error interno del servidor", error: error.message });
     }
 }
+
 
 export default { guardarEnProduccion, eliminarDeProduccion, exportarExcellProduccion };

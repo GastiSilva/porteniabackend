@@ -3,6 +3,6 @@ import {exportarExcellIngresos} from "../controllers/IngresosController.js";
 
 const router = express.Router();
 
-router.get("/ExportarExcellIngresos", exportarExcellIngresos);
+router.post("/ExportarExcellIngresos", exportarExcellIngresos);
 
 export default router;

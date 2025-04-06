@@ -3,6 +3,11 @@ import Producto from "../models/Producto.js";
 import Devolucion from "../models/Devolucion.js";
 import sequelize from "sequelize";
 import ExcelJS from "exceljs";
+import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc.js';
+dayjs.extend(utc);
+import { Op } from "sequelize";
+
 
 export async function guardarEnDevolucion(req, res) {
     try {
@@ -30,11 +35,11 @@ export async function guardarEnDevolucion(req, res) {
                     message: `El producto con nombre "${nombre}" no existe.`,
                 });
             }
-
+            console.log("Producto fgechaaaa:", fecha);
             registrosDevolucion.push({
                 id_Producto: productoEncontrado.Id_Producto,
                 Cantidad: cantidad,
-                Fecha: fecha,
+                Fecha: dayjs(fecha).startOf('day').utc().format(),
             });
         }
 
@@ -75,7 +80,18 @@ export async function guardarEnDevolucion(req, res) {
 
 export async function exportarExcellDevolucion(req, res) {
     try {
+        const { fechaDesde, fechaHasta } = req.body;
+                const whereClause = {};
+                if (fechaDesde && fechaHasta) {
+                    const desde = dayjs(fechaDesde).startOf('day').toDate();
+                    const hasta = dayjs(fechaHasta).endOf('day').toDate();
+                    whereClause.Fecha = {
+                        [Op.between]: [desde, hasta],
+                    };
+                }
+
         const devolucion = await Devolucion.findAll({
+            where: whereClause,
             include: [
                 {
                     model: Producto,
@@ -92,6 +108,7 @@ export async function exportarExcellDevolucion(req, res) {
         const worksheet = workbook.addWorksheet("Devoluccion");
 
         worksheet.columns = [
+            { header: "Fecha", key: "Fecha", width: 15 },
             { header: "Código Producto", key: "Codigo", width: 20 },
             { header: "Nombre Producto", key: "Nombre", width: 40 },
             { header: "Cantidad", key: "Cantidad", width: 15 },
@@ -103,6 +120,7 @@ export async function exportarExcellDevolucion(req, res) {
           
         devolucion.forEach((item) => {
             worksheet.addRow({
+                Fecha: dayjs(item.Fecha).format('YYYY-MM-DD'),
                 Codigo: item.Producto.Codigo,
                 Nombre: item.Producto.Nombre,
                 Cantidad: item.Cantidad,

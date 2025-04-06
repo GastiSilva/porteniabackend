@@ -2,10 +2,23 @@ import Ingresos from "../models/Ingresos.js";
 import Vendedor from "../models/Vendedores.js";
 import Estado from "../models/Estados.js";
 import ExcelJS from "exceljs";
+import dayjs from 'dayjs';
+import { Op } from "sequelize";
 
 export async function exportarExcellIngresos(req, res) {
     try {
+        const { fechaDesde, fechaHasta } = req.body;
+                const whereClause = {};
+                if (fechaDesde && fechaHasta) {
+                    const desde = dayjs(fechaDesde).startOf('day').toDate();
+                    const hasta = dayjs(fechaHasta).endOf('day').toDate();
+                    whereClause.Fecha = {
+                        [Op.between]: [desde, hasta],
+                    };
+                }
+
         const ingresos = await Ingresos.findAll({
+            where: whereClause,
             include: [
                 {
                     model: Vendedor,
@@ -46,7 +59,7 @@ export async function exportarExcellIngresos(req, res) {
             else if (item.Efectivo) metodoPago = "Efectivo";
             else if (item.Transferencia) metodoPago = "Transferencia";
             worksheet.addRow({
-                Fecha: item.Fecha,
+                Fecha: dayjs(item.Fecha).format('YYYY-MM-DD'),
                 Descripcion: `${item.Nombre} - ${item.Detalle || "Sin detalle"}`,
                 Comprobante: item.NroComprobante,
                 Total: item.Total,

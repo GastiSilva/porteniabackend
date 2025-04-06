@@ -5,6 +5,6 @@ const router = express.Router();
 
 // Ruta para guardar los datos
 router.post("/guardarEnDevolucion", guardarEnDevolucion);
-router.get("/exportarExcellDevolucion", exportarExcellDevolucion);
+router.post("/ExportarExcellDevolucion", exportarExcellDevolucion);
 
 export default router;

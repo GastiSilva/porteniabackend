@@ -4,6 +4,9 @@ import Estado from '../models/Estados.js';
 import RemitoProducto from '../models/RemitoProducto.js';
 import Producto from '../models/Producto.js';
 import { Writable } from 'stream';
+import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc.js';
+dayjs.extend(utc);
 
 // Función para generar y enviar el PDF
 export const generarPDF = async (req, res) => {
@@ -31,9 +34,9 @@ export const generarPDF = async (req, res) => {
   });
 
   const totalOperacion = RemitoProductoEncontrado.reduce((total, rp) => total + rp.Cantidad * rp.PrecioTotal, 0);
-  const anio = remito.Fecha.getFullYear();
-  const mes = remito.Fecha.getMonth();
-  const dia = remito.Fecha.getDate();
+  const anio = dayjs(remito.Fecha).utc().year();
+  const mes = dayjs(remito.Fecha).utc().month() + 1; // Los meses en dayjs son 0-indexados
+  const dia = dayjs(remito.Fecha).utc().date();
   
 
   if (!remito) {
@@ -96,7 +99,7 @@ export const generarPDF = async (req, res) => {
   textRightPositionY += 15;
   doc.font('Helvetica').text('DOCUMENTO NO VALIDO COMO FACTURA', textRightMarginX, textRightPositionY, { align: 'left' });
   textRightPositionY += 15;
-  doc.text('N° 0001 - 00000001', textRightMarginX, textRightPositionY, { align: 'left' });
+  doc.text(`N° 0001 - ${remito.Id_Remito.toString().padStart(8, '0')}`, textRightMarginX, textRightPositionY, { align: 'left' });
   textRightPositionY += 20;
   doc.text(`DIA: ${dia}  MES: ${mes}  AÑO: ${anio}`, textRightMarginX, textRightPositionY, { align: 'left' });
 
@@ -176,7 +179,7 @@ export const generarPDF = async (req, res) => {
 
 //Estado
 const estadoBoxX = tableXInit + 230;
-const estadoBoxY = positionYInit + 460;
+const estadoBoxY = positionYInit + 450;
 const estadoBoxWidth = 157;
 const estadoBoxHeight = 30;
 
@@ -187,7 +190,7 @@ doc.font('Helvetica').text(EstadoEncontrado.Estado, estadoBoxX + 45, estadoBoxY 
   // Total
   // Total en un recuadro al final del PDF a la derecha
   const totalBoxX = tableXInit + 390;
-  const totalBoxY = positionYInit + 460;
+  const totalBoxY = positionYInit + 450;
   const totalBoxWidth = 157;
   const totalBoxHeight = 30;
 
@@ -201,7 +204,7 @@ doc.font('Helvetica').text(EstadoEncontrado.Estado, estadoBoxX + 45, estadoBoxY 
 
   //Gusto caseroo
   const gustoBoxX = tableXInit;
-  const gustoBoxY = positionYInit + 510;
+  const gustoBoxY = positionYInit + 490;
   const gustoBoxWidth = 550;
   const gustoBoxHeight = 30;
 
