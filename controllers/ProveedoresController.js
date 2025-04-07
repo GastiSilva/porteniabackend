@@ -49,3 +49,18 @@ export const registrarProveedor = async (req, res) => {
       return res.status(500).json({ mensaje: 'Error del servidor' });
     }
   };
+
+  export const obtenerProveedores = async (req, res) => {
+    try {
+      const proveedores = await Proveedor.findAll();
+  
+      if (!proveedores || proveedores.length === 0) {
+        return res.status(404).json({ mensaje: 'No hay proveedores registrados' });
+      }
+  
+      return res.status(200).json(proveedores);
+    } catch (error) {
+      console.error('Error del servidor:', error);
+      return res.status(500).json({ mensaje: 'Error del servidor' });
+    }
+  };

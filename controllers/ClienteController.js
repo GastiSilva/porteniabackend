@@ -86,4 +86,19 @@ export async function exportarExcellClientes(req, res) {
   }
 }
 
-export default { registrarCliente, eliminarCliente, exportarExcellClientes };
+export const obtenerClientes = async (req, res) => {
+  try {
+    const clientes = await Clientes.findAll();
+
+    if (!clientes || clientes.length === 0) {
+      return res.status(404).json({ mensaje: 'No hay clientes registrados' });
+    }
+
+    return res.status(200).json(clientes);
+  } catch (error) {
+    console.error('Error del servidor:', error);
+    return res.status(500).json({ mensaje: 'Error del servidor' });
+  }
+};
+
+export default { registrarCliente, eliminarCliente, exportarExcellClientes, obtenerClientes };

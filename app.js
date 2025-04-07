@@ -18,6 +18,7 @@ import clientesroutes from './routes/clientes.routes.js';
 import comprasroutes from './routes/compras.routes.js';
 import ingresosroutes from './routes/ingresos.routes.js';
 import egresosRoutes from './routes/egresos.routes.js';
+import ivaVentasRoutes from './routes/ivaVentas.routes.js';
 
 //modelos
 // import './models/Usuario.js';
@@ -33,7 +34,7 @@ import egresosRoutes from './routes/egresos.routes.js';
 // import './models/Concepto.js';
 // import './models/Compras.js';
 // import './models/IVACompras.js';
-// import './models/IVAventas.js';
+import './models/IVAVentas.js';
 // import './models/Gastos.js';
 // import './models/Egresos.js';
 // import './models/EgresoGastosAsosiaciones.js';
@@ -71,6 +72,7 @@ app.use('/api', clientesroutes);
 app.use('/api', comprasroutes);
 app.use('/api', ingresosroutes);
 app.use('/api', egresosRoutes);
+app.use('/api', ivaVentasRoutes);
 
 
 

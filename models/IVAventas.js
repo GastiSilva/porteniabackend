@@ -23,7 +23,7 @@ const IVAVentas = sequelize.define('IVAVentas', {
   },
   Id_Cliente: {
     type: DataTypes.INTEGER,
-    allowNull: false,
+    allowNull: true,
     references: {
       model: Clientes,
       key: 'id_Cliente'
@@ -31,7 +31,7 @@ const IVAVentas = sequelize.define('IVAVentas', {
   },
   Id_Proveedor: {
     type: DataTypes.INTEGER,
-    allowNull: false,
+    allowNull: true,
     references: {
       model: Proveedor, 
       key: 'id_Proveedor'

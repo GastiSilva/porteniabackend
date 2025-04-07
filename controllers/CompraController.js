@@ -47,7 +47,6 @@ export const obtenerEstructuraCompras = async (req, res) => {
     }
 };
 
-
 export async function exportarExcellCompras(req, res) {
     try {
          const { fechaDesde, fechaHasta } = req.body;
@@ -121,7 +120,53 @@ export async function exportarExcellCompras(req, res) {
     }
 }
 
+export const guardarCompra = async (req, res) => {
+    try {
+      const { compra, materiaPrima, estadoId } = req.body;
+  
+      // Validación del estado
+      const estado = await Estado.findByPk(estadoId);
+      if (!estado) {
+        return res.status(400).json({ message: 'Estado no válido' });
+      }
+  
+      // Crear la materia prima
+      const nuevaMateria = await MateriaPrima.create({
+        Nombre: materiaPrima.Nombre,
+        Fecha: materiaPrima.Fecha,
+        Marca: materiaPrima.Marca,
+        Cantidad: materiaPrima.Cantidad,
+        PrecioUnitario: materiaPrima.PrecioUnitario,
+        PrecioTotal: materiaPrima.PrecioTotal,
+      });
+  
+      // Crear la compra con la materia prima relacionada
+      const nuevaCompra = await Compras.create({
+        Fecha: compra.Fecha,
+        id_MateriaPrima: nuevaMateria.id_MateriaPrima, // FK correcta
+        Id_Estado: estadoId, // FK correcta
+        Cantidad: compra.Cantidad,
+        PrecioUnit: compra.PrecioUnit,
+        Factura_N: compra.Factura_N,
+        Importe: compra.Importe,
+      });
+  
+      return res.status(201).json({
+        message: 'Compra y materia prima guardadas con éxito',
+        compra: nuevaCompra,
+        materiaPrima: nuevaMateria
+      });
+    } catch (error) {
+      console.error('Error al guardar la compra:', error);
+      return res.status(500).json({
+        message: 'Error al guardar la compra',
+        error: error.message
+      });
+    }
+  };
+
 export default {
     obtenerEstructuraCompras,
-    exportarExcellCompras
+    exportarExcellCompras,
+    guardarCompra
 };
