@@ -19,6 +19,8 @@ import comprasroutes from './routes/compras.routes.js';
 import ingresosroutes from './routes/ingresos.routes.js';
 import egresosRoutes from './routes/egresos.routes.js';
 import ivaVentasRoutes from './routes/ivaVentas.routes.js';
+import gastosroutes from './routes/gastos.routes.js';
+import tipogastosroutes from './routes/tipogastos.routes.js';
 
 //modelos
 // import './models/Usuario.js';
@@ -73,6 +75,8 @@ app.use('/api', comprasroutes);
 app.use('/api', ingresosroutes);
 app.use('/api', egresosRoutes);
 app.use('/api', ivaVentasRoutes);
+app.use('/api', gastosroutes);
+app.use('/api', tipogastosroutes);
 
 
 
