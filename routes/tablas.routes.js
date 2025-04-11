@@ -9,7 +9,7 @@ router.get('/tablasTodas', async (req, res) => {
         const query = "SELECT tablename as table_name FROM pg_catalog.pg_tables WHERE schemaname = 'public'";
 
         const [result] = await sequelize.query(query);
-        const filteredResult = result.filter(table => !['Conceptos', 'Estados', 'Remito', 'RemitoProducto'].includes(table.table_name));
+        const filteredResult = result.filter(table => !['Conceptos', 'Estados', 'Remito', 'RemitoProducto', 'TipoGastos', 'Productos'].includes(table.table_name));
 
         res.json(filteredResult);
     } catch (error) {
@@ -70,8 +70,8 @@ router.get('/datosTablas/:tableName', async (req, res) => {
         // Armar query principal con filtro si corresponde
         let query = `SELECT * FROM "public"."${tableName}"`;
         if (tieneColumnaFecha && fechaDesde && fechaHasta) {
-            const desde = dayjs(fechaDesde).startOf('day').toISOString(); 
-            const hasta = dayjs(fechaHasta).endOf('day').toISOString();   
+            const desde = dayjs(fechaDesde).startOf('day').toISOString();
+            const hasta = dayjs(fechaHasta).endOf('day').toISOString();
 
             query += ` WHERE "Fecha" BETWEEN '${desde}' AND '${hasta}'`;
         }
@@ -102,6 +102,7 @@ router.get('/datosTablas/:tableName', async (req, res) => {
         const resultadoFormateado = result.map(row => {
             const filaProcesada = { ...row };
             const fechaOriginal = filaProcesada.Fecha;
+
             // Reemplazar claves foráneas por sus datos
             for (const fk of foreignKeys) {
                 const fkColumn = fk.column_name;
@@ -123,6 +124,18 @@ router.get('/datosTablas/:tableName', async (req, res) => {
                 }
             }
             filaProcesada.Fecha = fechaOriginal;
+
+            // Agregar campo "Proveedor/Cliente" si la tabla es IVAVentas
+            if (tableName === 'IVAVentas') {
+                if (filaProcesada.Nombre && filaProcesada.Cuil) {
+                    filaProcesada["Proveedor/Cliente"] = `Cliente`;
+                } else if (filaProcesada.Nombre && filaProcesada.Cuit) {
+                    filaProcesada["Proveedor/Cliente"] = `Proveedor`;
+                } else {
+                    filaProcesada["Proveedor/Cliente"] = 'Desconocido';
+                }
+            }
+
             // Formatear la fecha si existe
             if (filaProcesada.Fecha) {
                 const date = new Date(filaProcesada.Fecha);

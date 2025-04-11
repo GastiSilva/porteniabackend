@@ -114,6 +114,87 @@ export async function exportarExcellEgresos(req, res) {
     }
 }
 
+export async function guardarEgreso(req, res) {
+    try {
+        const { Fecha, Concepto, Comprobante, ImporteTotal } = req.body;
+
+        if (!Fecha || !Concepto || !Comprobante || !ImporteTotal) {
+            return res.status(400).json({ message: "Todos los campos son obligatorios." });
+        }
+
+        const nuevoEgreso = await Egresos.create({
+            Fecha,
+            Concepto,
+            Comprobante,
+            ImporteTotal,
+        });
+
+        return res.status(201).json({ message: "Egreso guardado exitosamente.", data: nuevoEgreso });
+    } catch (error) {
+        console.error("Error al guardar el egreso:", error);
+        return res.status(500).json({ message: "Error interno del servidor", error: error.message });
+    }
+}
+
+export async function obtenerTodosEgresos(req, res) {
+    try {
+        const egresos = await Egresos.findAll({
+            include: [
+                {
+                    model: Gastos,
+                    attributes: ["Id_TipoGastos", "Importe"],
+                    include: [
+                        {
+                            model: TipoGastos,
+                            attributes: ["Id_TipoGastos", "Tipo_Gasto"],
+                        },
+                    ],
+                },
+            ],
+        });
+
+        if (!egresos || egresos.length === 0) {
+            return res.status(404).json({ message: "No se encontraron egresos." });
+        }
+
+        return res.status(200).json({ data: egresos });
+    } catch (error) {
+        console.error("Error al obtener los egresos:", error);
+        return res.status(500).json({ message: "Error interno del servidor", error: error.message });
+    }
+}
+
+export async function modificarEgreso(req, res) {
+    try {
+        const { Id_Egresos } = req.params;
+        const { ImporteTotal } = req.body;
+
+        if (!Id_Egresos || (!ImporteTotal)) {
+            return res.status(400).json({ message: "Datos insuficientes para realizar la actualización." });
+        }
+
+        const egreso = await Egresos.findByPk(Id_Egresos);
+
+        if (!egreso) {
+            return res.status(404).json({ message: "Egreso no encontrado." });
+        }
+
+       
+
+        if (ImporteTotal !== undefined) egreso.ImporteTotal = ImporteTotal;
+
+        await egreso.save();
+
+        res.status(200).json({ message: "Egreso actualizado correctamente.", egreso });
+    } catch (error) {
+        console.error("Error al modificar el egreso:", error);
+        return res.status(500).json({ message: "Error interno del servidor", error: error.message });
+    }
+}
+
 export default {
     exportarExcellEgresos,
+    guardarEgreso,
+    obtenerTodosEgresos,
+    modificarEgreso  
 };

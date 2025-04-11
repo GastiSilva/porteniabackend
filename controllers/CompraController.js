@@ -8,60 +8,44 @@ import { Op } from "sequelize";
 
 export const obtenerEstructuraCompras = async (req, res) => {
     try {
-        // Consulta para obtener la estructura de la tabla Compras
+        // Consulta para obtener la estructura de la tabla Compras, excluyendo claves foráneas
         const estructuraComprasQuery = `
             SELECT column_name, data_type
             FROM information_schema.columns
             WHERE table_name = 'Compras' 
             AND table_schema = 'public'
-            AND (column_name = 'Id_Compras' OR column_name NOT LIKE 'id%')
-            AND column_name NOT IN ('Id_Proveedor', 'Id_MateriaPrima', 'Id_Concepto');
+            AND column_name NOT LIKE 'Id_%'
+            AND column_name NOT LIKE 'id_%';
         `;
         const [estructuraCompras] = await sequelize.query(estructuraComprasQuery);
 
-        // Consulta para obtener la estructura de la tabla Proveedor
-        const estructuraProveedorQuery = `
-            SELECT column_name, data_type
-            FROM information_schema.columns
-            WHERE table_name = 'Proveedor' 
-            AND table_schema = 'public'
-            AND column_name NOT IN ('id_Proveedor');
-        `;
-        const [estructuraProveedor] = await sequelize.query(estructuraProveedorQuery);
+        // Consultas para obtener las estructuras de las tablas relacionadas, excluyendo claves foráneas
+        const tablasRelacionadas = ['MateriaPrima', 'Estados'];
+        const estructurasRelacionadas = {};
 
-        // Consulta para obtener la estructura de la tabla MateriaPrima
-        const estructuraMateriaPrimaQuery = `
-            SELECT column_name, data_type
-            FROM information_schema.columns
-            WHERE table_name = 'MateriaPrima' AND table_schema = 'public'
-            AND column_name NOT IN ('Id_VentaMercaderia', 'id_Produccion', 'id_MateriaPrima');
-        `;
-        const [estructuraMateriaPrima] = await sequelize.query(estructuraMateriaPrimaQuery);
-
-        // Consulta para obtener la estructura de la tabla Conceptos
-        const estructuraConceptosQuery = `
-            SELECT column_name, data_type
-            FROM information_schema.columns
-            WHERE table_name = 'Conceptos' 
-            AND table_schema = 'public'
-            
-            AND column_name NOT IN ('id_Concepto');
-        `;
-        const [estructuraConceptos] = await sequelize.query(estructuraConceptosQuery);
+        for (const tabla of tablasRelacionadas) {
+            const estructuraRelacionadaQuery = `
+                SELECT column_name, data_type
+                FROM information_schema.columns
+                WHERE table_name = '${tabla}' 
+                AND table_schema = 'public'
+                AND column_name NOT LIKE 'Id_%'
+                AND column_name NOT LIKE 'id_%';
+            `;
+            const [estructuraRelacionada] = await sequelize.query(estructuraRelacionadaQuery);
+            estructurasRelacionadas[tabla] = estructuraRelacionada;
+        }
 
         // Enviar las estructuras al frontend
         res.status(200).json({
             Compras: estructuraCompras,
-            Proveedor: estructuraProveedor,
-            MateriaPrima: estructuraMateriaPrima,
-            Conceptos: estructuraConceptos,
+            ...estructurasRelacionadas,
         });
     } catch (error) {
         console.error('Error al obtener la estructura de las tablas:', error);
         res.status(500).json({ error: 'Error al obtener la estructura de las tablas', details: error.message });
     }
 };
-
 
 export async function exportarExcellCompras(req, res) {
     try {
@@ -136,7 +120,53 @@ export async function exportarExcellCompras(req, res) {
     }
 }
 
+export const guardarCompra = async (req, res) => {
+    try {
+      const { compra, materiaPrima, estadoId } = req.body;
+  
+      // Validación del estado
+      const estado = await Estado.findByPk(estadoId);
+      if (!estado) {
+        return res.status(400).json({ message: 'Estado no válido' });
+      }
+  
+      // Crear la materia prima
+      const nuevaMateria = await MateriaPrima.create({
+        Nombre: materiaPrima.Nombre,
+        Fecha: materiaPrima.Fecha,
+        Marca: materiaPrima.Marca,
+        Cantidad: materiaPrima.Cantidad,
+        PrecioUnitario: materiaPrima.PrecioUnitario,
+        PrecioTotal: materiaPrima.PrecioTotal,
+      });
+  
+      // Crear la compra con la materia prima relacionada
+      const nuevaCompra = await Compras.create({
+        Fecha: compra.Fecha,
+        id_MateriaPrima: nuevaMateria.id_MateriaPrima, // FK correcta
+        Id_Estado: estadoId, // FK correcta
+        Cantidad: compra.Cantidad,
+        PrecioUnit: compra.PrecioUnit,
+        Factura_N: compra.Factura_N,
+        Importe: compra.Importe,
+      });
+  
+      return res.status(201).json({
+        message: 'Compra y materia prima guardadas con éxito',
+        compra: nuevaCompra,
+        materiaPrima: nuevaMateria
+      });
+    } catch (error) {
+      console.error('Error al guardar la compra:', error);
+      return res.status(500).json({
+        message: 'Error al guardar la compra',
+        error: error.message
+      });
+    }
+  };
+
 export default {
     obtenerEstructuraCompras,
-    exportarExcellCompras
+    exportarExcellCompras,
+    guardarCompra
 };

@@ -78,6 +78,54 @@ export async function guardarEnDevolucion(req, res) {
     }
 }
 
+export async function eliminarDeDevolucion(req, res) {
+    try {
+        const { id, cantidad } = req.params;
+        if (!id || !cantidad) {
+            console.error("Datos inválidos:", { id, cantidad });
+            return res.status(400).json({ message: "Datos inválidos" });
+        }
+
+        const devolucionEncontrada = await Devolucion.findOne({
+            where: { id_Devolucion: id },
+        });
+
+        if (!devolucionEncontrada) {
+            console.error(`Devolucion no encontrada: ${id}`);
+            return res.status(404).json({
+                message: `La Devolucion con ID "${id}" no existe.`,
+            });
+        }
+
+        if (devolucionEncontrada.Cantidad < cantidad) {
+            console.error(`Cantidad a eliminar excede la cantidad disponible: ${cantidad}`);
+            return res.status(400).json({
+                message: `La cantidad a eliminar excede la cantidad disponible en Devolucion.`,
+            });
+        }
+
+        devolucionEncontrada.Cantidad -= cantidad;
+
+        if (devolucionEncontrada.Cantidad === 0) {
+            await Devolucion.destroy({
+                where: { id_Produccion: id },
+            });
+            return res.status(200).json({
+                message: "Devolucion eliminada exitosamente.",
+            });
+        } else {
+            await devolucionEncontrada.save();
+            return res.status(200).json({
+                message: "Cantidad eliminada exitosamente de devolucion.",
+                data: devolucionEncontrada,
+            });
+        }
+    } catch (error) {
+        console.error("Error al eliminar de Devolucion:", error);
+        return res.status(500).json({ message: "Error interno del servidor", error: error.message });
+    }
+}
+
 export async function exportarExcellDevolucion(req, res) {
     try {
         const { fechaDesde, fechaHasta } = req.body;
@@ -138,4 +186,4 @@ export async function exportarExcellDevolucion(req, res) {
     }
 }
 
-export default { guardarEnDevolucion, exportarExcellDevolucion };
+export default { guardarEnDevolucion, eliminarDeDevolucion, exportarExcellDevolucion };
