@@ -9,7 +9,7 @@ router.get('/tablasTodas', async (req, res) => {
         const query = "SELECT tablename as table_name FROM pg_catalog.pg_tables WHERE schemaname = 'public'";
 
         const [result] = await sequelize.query(query);
-        const filteredResult = result.filter(table => !['Conceptos', 'Estados', 'Remito', 'RemitoProducto'].includes(table.table_name));
+        const filteredResult = result.filter(table => !['Conceptos', 'Estados', 'Remito', 'RemitoProducto', 'TipoGastos', 'Productos'].includes(table.table_name));
 
         res.json(filteredResult);
     } catch (error) {

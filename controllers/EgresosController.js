@@ -164,8 +164,37 @@ export async function obtenerTodosEgresos(req, res) {
     }
 }
 
+export async function modificarEgreso(req, res) {
+    try {
+        const { Id_Egresos } = req.params;
+        const { ImporteTotal } = req.body;
+
+        if (!Id_Egresos || (!ImporteTotal)) {
+            return res.status(400).json({ message: "Datos insuficientes para realizar la actualización." });
+        }
+
+        const egreso = await Egresos.findByPk(Id_Egresos);
+
+        if (!egreso) {
+            return res.status(404).json({ message: "Egreso no encontrado." });
+        }
+
+       
+
+        if (ImporteTotal !== undefined) egreso.ImporteTotal = ImporteTotal;
+
+        await egreso.save();
+
+        res.status(200).json({ message: "Egreso actualizado correctamente.", egreso });
+    } catch (error) {
+        console.error("Error al modificar el egreso:", error);
+        return res.status(500).json({ message: "Error interno del servidor", error: error.message });
+    }
+}
+
 export default {
     exportarExcellEgresos,
     guardarEgreso,
-    obtenerTodosEgresos  
+    obtenerTodosEgresos,
+    modificarEgreso  
 };

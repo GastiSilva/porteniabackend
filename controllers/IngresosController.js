@@ -80,4 +80,39 @@ export async function exportarExcellIngresos(req, res) {
     }
 }
 
-export default { exportarExcellIngresos };
+export async function modificarIngreso(req, res) {
+    try {
+        const { id_Ingreso } = req.params;
+        const { Total, Estado: estadoNombre } = req.body;
+
+        if (!id_Ingreso || (!Total && !estadoNombre)) {
+            return res.status(400).json({ message: "Datos insuficientes para realizar la actualización." });
+        }
+
+        const ingreso = await Ingresos.findByPk(id_Ingreso);
+
+        if (!ingreso) {
+            return res.status(404).json({ message: "Ingreso no encontrado." });
+        }
+
+        if (estadoNombre) {
+            const estado = await Estado.findOne({ where: { Estado: estadoNombre } });
+            if (!estado) {
+                return res.status(404).json({ message: "Estado no encontrado." });
+            }
+            ingreso.Id_Estado = estado.Id_Estado;
+        }
+
+        if (Total !== undefined) ingreso.Total = Total;
+
+        await ingreso.save();
+
+        res.status(200).json({ message: "Ingreso actualizado correctamente.", ingreso });
+    } catch (error) {
+        console.error("Error al modificar el ingreso:", error);
+        return res.status(500).json({ message: "Error interno del servidor", error: error.message });
+    }
+}
+
+
+export default { exportarExcellIngresos, modificarIngreso };
