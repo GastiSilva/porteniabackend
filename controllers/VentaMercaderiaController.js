@@ -125,6 +125,80 @@ export async function eliminarDeVentaMercaderia(req, res) {
     }
 }
 
+export async function modificarCantidadVenta(req, res) {
+    try {
+        const { id } = req.params;
+        const { nuevaCantidad } = req.body;
+        console.log("ID recibido:", id);
+console.log("Nueva cantidad recibida:", nuevaCantidad);
+        if (!id || typeof nuevaCantidad !== 'number' || nuevaCantidad < 0) {
+            console.error("Datos inválidos:", { id, nuevaCantidad });
+            return res.status(400).json({ message: "Datos inválidos" });
+        }
+
+        const ventaEncontrada = await VentasMercaderia.findOne({
+            where: { Id_VentaMercaderia: id },
+        });
+
+        if (!ventaEncontrada) {
+            console.error(`Venta no encontrada: ${id}`);
+            return res.status(404).json({
+                message: `La venta con ID "${id}" no existe.`,
+            });
+        }
+
+        const diferencia = nuevaCantidad - ventaEncontrada.Cantidad;
+
+        if (diferencia > 0) {
+            const productos = await Produccion.findAll({
+                where: { id_Producto: ventaEncontrada.id_Producto },
+                order: [['Fecha', 'ASC']],
+            });
+
+            let cantidadRestante = diferencia;
+
+            for (const producto of productos) {
+                if (cantidadRestante <= 0) break;
+                if (producto.Cantidad <= cantidadRestante) {
+                    await producto.destroy();
+                    cantidadRestante -= producto.Cantidad;
+                } else {
+                    await producto.update({
+                        Cantidad: producto.Cantidad - cantidadRestante,
+                    });
+                    cantidadRestante = 0;
+                }
+            }
+
+            if (cantidadRestante > 0) {
+                console.error("No hay suficiente stock para aumentar la cantidad.");
+                return res.status(400).json({
+                    message: "No hay suficiente stock para aumentar la cantidad.",
+                });
+            }
+        } else if (diferencia < 0) {
+            await Produccion.create({
+                Id_Producto: ventaEncontrada.id_Producto,
+                Cantidad: Math.abs(diferencia),
+                Fecha: dayjs().startOf('day').utc().format(),
+            });
+        }
+
+        ventaEncontrada.Cantidad = nuevaCantidad;
+        await ventaEncontrada.save();
+
+        return res.status(200).json({
+            message: "Cantidad de venta modificada exitosamente.",
+            data: ventaEncontrada,
+        });
+    } catch (error) {
+        console.error("Error al modificar la cantidad de venta:", error);
+        return res.status(500).json({ message: "Error interno del servidor", error: error.message });
+    }
+}
+
+
+
 export async function exportarExcellVentas(req, res) {
     try {
         const { fechaDesde, fechaHasta } = req.body;
@@ -184,4 +258,4 @@ export async function exportarExcellVentas(req, res) {
     }
 }
 
-export default { guardarVentaMercaderia, eliminarDeVentaMercaderia, exportarExcellVentas };
+export default { guardarVentaMercaderia, eliminarDeVentaMercaderia, exportarExcellVentas, modificarCantidadVenta }; 
