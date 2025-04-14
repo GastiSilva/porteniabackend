@@ -58,4 +58,26 @@ export const registrar = async (req, res) => {
   }
 };
 
+export const eliminarUsuario = async (req, res) => {
+  const { id_Usuario } = req.body;
+  try {
+    const usuario = await Usuario.findByPk(id_Usuario);
+
+    if (!usuario) {
+      return res.status(404).json({ mensaje: 'Usuario no encontrado' });
+    }
+
+    await usuario.destroy();
+    return res.status(200).json({ mensaje: 'Usuario eliminado exitosamente' });
+  } catch (error) {
+    console.error('Error del servidor:', error);
+    return res.status(500).json({ mensaje: 'Error del servidor' });
+  }
+};
+
+export default {
+  autenticar,
+  registrar,
+  eliminarUsuario
+};
 
