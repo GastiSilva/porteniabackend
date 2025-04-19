@@ -77,60 +77,11 @@ export async function guardarVentaMercaderia(req, res) {
     }
 }
 
-export async function eliminarDeVentaMercaderia(req, res) {
-    try {
-        const { id, cantidad } = req.params;
-        if (!id || !cantidad) {
-            console.error("Datos inválidos:", { id, cantidad });
-            return res.status(400).json({ message: "Datos inválidos" });
-        }
-
-        const ventaEncontrada = await VentasMercaderia.findOne({
-            where: { Id_VentaMercaderia: id },
-        });
-
-        if (!ventaEncontrada) {
-            console.error(`Venta no encontrada: ${id}`);
-            return res.status(404).json({
-                message: `La venta con ID "${id}" no existe.`,
-            });
-        }
-
-        if (ventaEncontrada.Cantidad < cantidad) {
-            console.error(`Cantidad a eliminar excede la cantidad disponible: ${cantidad}`);
-            return res.status(400).json({
-                message: `La cantidad a eliminar excede la cantidad disponible en ventas de mercaderia.`,
-            });
-        }
-
-        ventaEncontrada.Cantidad -= cantidad;
-
-        if (ventaEncontrada.Cantidad === 0) {
-            await Produccion.destroy({
-                where: { Id_VentaMercaderia: id },
-            });
-            return res.status(200).json({
-                message: "Venta de mercaderia eliminada exitosamente.",
-            });
-        } else {
-            await ventaEncontrada.save();
-            return res.status(200).json({
-                message: "Cantidad eliminada exitosamente de las ventas.",
-                data: ventaEncontrada,
-            });
-        }
-    } catch (error) {
-        console.error("Error al eliminar de Ventas de Mercaderia:", error);
-        return res.status(500).json({ message: "Error interno del servidor", error: error.message });
-    }
-}
 
 export async function modificarCantidadVenta(req, res) {
     try {
         const { id } = req.params;
         const { nuevaCantidad } = req.body;
-        console.log("ID recibido:", id);
-console.log("Nueva cantidad recibida:", nuevaCantidad);
         if (!id || typeof nuevaCantidad !== 'number' || nuevaCantidad < 0) {
             console.error("Datos inválidos:", { id, nuevaCantidad });
             return res.status(400).json({ message: "Datos inválidos" });
@@ -197,8 +148,6 @@ console.log("Nueva cantidad recibida:", nuevaCantidad);
     }
 }
 
-
-
 export async function exportarExcellVentas(req, res) {
     try {
         const { fechaDesde, fechaHasta } = req.body;
@@ -258,4 +207,4 @@ export async function exportarExcellVentas(req, res) {
     }
 }
 
-export default { guardarVentaMercaderia, eliminarDeVentaMercaderia, exportarExcellVentas, modificarCantidadVenta }; 
+export default { guardarVentaMercaderia, exportarExcellVentas, modificarCantidadVenta }; 

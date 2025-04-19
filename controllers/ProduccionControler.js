@@ -47,10 +47,10 @@ export async function guardarEnProduccion(req, res) {
     }
 }
 
-export async function eliminarDeProduccion(req, res) {
+export async function modificarProduccion(req, res) {
     try {
         const { id, cantidad } = req.params;
-        if (!id || !cantidad) {
+        if (!id || cantidad === undefined) {
             console.error("Datos inválidos:", { id, cantidad });
             return res.status(400).json({ message: "Datos inválidos" });
         }
@@ -66,31 +66,25 @@ export async function eliminarDeProduccion(req, res) {
             });
         }
 
-        if (produccionEncontrada.Cantidad < cantidad) {
-            console.error(`Cantidad a eliminar excede la cantidad disponible: ${cantidad}`);
+        const nuevaCantidad = produccionEncontrada.Cantidad + cantidad;
+
+        if (nuevaCantidad < 0) {
+            console.error(`Cantidad resultante negativa: ${nuevaCantidad}`);
             return res.status(400).json({
-                message: `La cantidad a eliminar excede la cantidad disponible en producción.`,
+                message: `La cantidad resultante no puede ser negativa.`,
             });
         }
 
-        produccionEncontrada.Cantidad -= cantidad;
+        produccionEncontrada.Cantidad = nuevaCantidad;
 
-        if (produccionEncontrada.Cantidad === 0) {
-            await Produccion.destroy({
-                where: { id_Produccion: id },
-            });
-            return res.status(200).json({
-                message: "Producción eliminada exitosamente.",
-            });
-        } else {
-            await produccionEncontrada.save();
-            return res.status(200).json({
-                message: "Cantidad eliminada exitosamente de la producción.",
-                data: produccionEncontrada,
-            });
-        }
+        await produccionEncontrada.save();
+
+        return res.status(200).json({
+            message: "Producción modificada exitosamente.",
+            data: produccionEncontrada,
+        });
     } catch (error) {
-        console.error("Error al eliminar de Producción:", error);
+        console.error("Error al modificar Producción:", error);
         return res.status(500).json({ message: "Error interno del servidor", error: error.message });
     }
 }
@@ -157,4 +151,4 @@ export async function exportarExcellProduccion(req, res) {
 }
 
 
-export default { guardarEnProduccion, eliminarDeProduccion, exportarExcellProduccion };
+export default { guardarEnProduccion, modificarProduccion, exportarExcellProduccion };
