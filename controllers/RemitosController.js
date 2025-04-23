@@ -285,5 +285,28 @@ export const obtenerPDF = async (req, res) => {
   res.send(remito.remitoPDF);
 };
 
+export const eliminarRemito = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const remito = await Remito.findByPk(id);
+
+    if (!remito) {
+      return res.status(404).json({ error: 'Remito no encontrado' });
+    }
+
+    // Eliminar los registros asociados en RemitoProducto
+    await RemitoProducto.destroy({ where: { Id_Remito: id } });
+
+    // Eliminar el remito
+    await Remito.destroy({ where: { Id_Remito: id } });
+
+    return res.status(200).json({ message: 'Remito y sus productos asociados eliminados correctamente' });
+  } catch (error) {
+    console.error('Error al eliminar el remito:', error);
+    return res.status(500).json({ error: 'Error al eliminar el remito' });
+  }
+};
+
 // Exportar el controlador
-export default { generarPDF, obtenerRemitos, obtenerPDF }; 
+export default { generarPDF, obtenerRemitos, obtenerPDF, eliminarRemito }; 

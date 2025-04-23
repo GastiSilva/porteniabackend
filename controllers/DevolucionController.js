@@ -126,6 +126,76 @@ export async function eliminarDeDevolucion(req, res) {
     }
 }
 
+export async function modificarCantidadDevolucion(req, res) {
+    try {
+        const { id } = req.params;
+        const { nuevaCantidad } = req.body;
+        if (!id || typeof nuevaCantidad !== 'number' || nuevaCantidad < 0) {
+            console.error("Datos inválidos:", { id, nuevaCantidad });
+            return res.status(400).json({ message: "Datos inválidos" });
+        }
+
+        const devolucionEncontrada = await Devolucion.findOne({
+            where: { id_Devolucion: id },
+        });
+
+        if (!devolucionEncontrada) {
+            console.error(`Devolución no encontrada: ${id}`);
+            return res.status(404).json({
+                message: `La devolución con ID "${id}" no existe.`,
+            });
+        }
+
+        const diferencia = nuevaCantidad - devolucionEncontrada.Cantidad;
+
+        if (diferencia > 0) {
+            const productos = await Produccion.findAll({
+                where: { id_Producto: devolucionEncontrada.id_Producto },
+                order: [['Fecha', 'ASC']],
+            });
+
+            let cantidadRestante = diferencia;
+
+            for (const producto of productos) {
+                if (cantidadRestante <= 0) break;
+                if (producto.Cantidad <= cantidadRestante) {
+                    await producto.destroy();
+                    cantidadRestante -= producto.Cantidad;
+                } else {
+                    await producto.update({
+                        Cantidad: producto.Cantidad - cantidadRestante,
+                    });
+                    cantidadRestante = 0;
+                }
+            }
+
+            if (cantidadRestante > 0) {
+                console.error("No hay suficiente stock para aumentar la cantidad.");
+                return res.status(400).json({
+                    message: "No hay suficiente stock para aumentar la cantidad.",
+                });
+            }
+        } else if (diferencia < 0) {
+            await Produccion.create({
+                Id_Producto: devolucionEncontrada.id_Producto,
+                Cantidad: Math.abs(diferencia),
+                Fecha: dayjs().startOf('day').utc().format(),
+            });
+        }
+
+        devolucionEncontrada.Cantidad = nuevaCantidad;
+        await devolucionEncontrada.save();
+
+        return res.status(200).json({
+            message: "Cantidad de devolución modificada exitosamente.",
+            data: devolucionEncontrada,
+        });
+    } catch (error) {
+        console.error("Error al modificar la cantidad de devolución:", error);
+        return res.status(500).json({ message: "Error interno del servidor", error: error.message });
+    }
+}
+
 export async function exportarExcellDevolucion(req, res) {
     try {
         const { fechaDesde, fechaHasta } = req.body;
@@ -186,4 +256,4 @@ export async function exportarExcellDevolucion(req, res) {
     }
 }
 
-export default { guardarEnDevolucion, eliminarDeDevolucion, exportarExcellDevolucion };
+export default { guardarEnDevolucion, eliminarDeDevolucion, exportarExcellDevolucion, modificarCantidadDevolucion };

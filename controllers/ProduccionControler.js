@@ -1,5 +1,8 @@
 import Produccion from "../models/Produccion.js";
 import Producto from "../models/Producto.js";
+import MateriaPrima from "../models/MateriaPrima.js";
+import MateriaPrimaPorProducto from "../models/MateriaPrimaPorProducto.js";
+import CompraMateriaPrima from "../models/CompraMateriaPrima.js";
 import ExcelJS from "exceljs";
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc.js';
@@ -8,49 +11,105 @@ import { Op } from "sequelize";
 
 export async function guardarEnProduccion(req, res) {
     try {
-        const { productos } = req.body;
-        if (!productos || !Array.isArray(productos)) {
-            console.error("Datos inválidos:", productos);
-            return res.status(400).json({ message: "Datos inválidos" });
-        }
-
-        const registrosProduccion = [];
-
-        for (const producto of productos) {
-            const { id, cantidad, fecha } = producto;
-            const produccionExistente = await Produccion.findOne({
-                where: { id_Producto: id },
-            });
-
-            if (produccionExistente) {
-                produccionExistente.Cantidad += cantidad;
-                await produccionExistente.save();
-                registrosProduccion.push(produccionExistente);
-            } else {
-                const nuevoRegistro = await Produccion.create({
-                    Id_Producto: id,
-                    Cantidad: cantidad,
-                    Fecha: dayjs(fecha).startOf('day').utc().format(),
-                });
-                registrosProduccion.push(nuevoRegistro);
-            }
-
-        }
-
-        return res.status(201).json({
-            message: "Productos guardados exitosamente en Producción.",
-            data: registrosProduccion,
+      const { productos } = req.body;
+      if (!productos || !Array.isArray(productos)) {
+        console.error("Datos inválidos:", productos);
+        return res.status(400).json({ message: "Datos inválidos" });
+      }
+  
+      const registrosProduccion = [];
+  
+      for (const producto of productos) {
+        const { id, cantidad, fecha } = producto;
+  
+        // 1. Buscar las materias primas necesarias
+        const materiasUsadas = await MateriaPrimaPorProducto.findAll({
+          where: { id_Producto: id }
         });
+  
+        // 2. Validar si hay stock suficiente
+        for (const item of materiasUsadas) {
+          const cantidadAConsumir = item.cantidadNecesaria * cantidad;
+          const materia = await MateriaPrima.findByPk(item.id_MateriaPrima);
+  
+          if (!materia) {
+            return res.status(404).json({ message: `Materia prima con ID ${item.id_MateriaPrima} no encontrada.` });
+          }
+  
+          // Buscar la cantidad total comprada de esta materia prima
+          const comprasMateriaPrima = await CompraMateriaPrima.findAll({
+            where: { id_MateriaPrima: item.id_MateriaPrima }
+          });
+  
+          // Sumar la cantidad de materia prima comprada
+          const cantidadComprada = comprasMateriaPrima.reduce((total, compra) => total + compra.Cantidad, 0);
+  
+          // Verificar si hay suficiente stock
+          if (cantidadComprada < cantidadAConsumir) {
+            return res.status(400).json({ message: `Stock insuficiente de ${materia.Nombre}. Se requiere ${cantidadAConsumir}, disponible: ${cantidadComprada}` });
+          }
+        }
+  
+        // 3. Descontar materia prima
+        for (const item of materiasUsadas) {
+          const cantidadAConsumir = item.cantidadNecesaria * cantidad;
+          const materia = await MateriaPrima.findByPk(item.id_MateriaPrima);
+  
+          // Buscar las compras realizadas de esta materia prima
+          const comprasMateriaPrima = await CompraMateriaPrima.findAll({
+            where: { id_MateriaPrima: item.id_MateriaPrima }
+          });
+  
+          // Restar de las compras el stock consumido
+          let cantidadRestante = cantidadAConsumir;
+          for (const compra of comprasMateriaPrima) {
+            if (compra.Cantidad >= cantidadRestante) {
+              compra.Cantidad -= cantidadRestante;
+              await compra.save();
+              break;
+            } else {
+              cantidadRestante -= compra.Cantidad;
+              compra.Cantidad = 0;
+              await compra.save();
+            }
+          }
+        }
+  
+        // 4. Guardar o actualizar la producción
+        const produccionExistente = await Produccion.findOne({
+          where: { id_Producto: id },
+        });
+  
+        if (produccionExistente) {
+          produccionExistente.Cantidad += cantidad;
+          await produccionExistente.save();
+          registrosProduccion.push(produccionExistente);
+        } else {
+          const nuevoRegistro = await Produccion.create({
+            Id_Producto: id,
+            Cantidad: cantidad,
+            Fecha: dayjs(fecha).startOf('day').utc().format(),
+          });
+          registrosProduccion.push(nuevoRegistro);
+        }
+      }
+  
+      return res.status(201).json({
+        message: "Productos guardados exitosamente en Producción y stock actualizado.",
+        data: registrosProduccion,
+      });
+  
     } catch (error) {
-        console.error("Error al guardar en Producción:", error);
-        return res.status(500).json({ message: "Error interno del servidor", error: error.message });
+      console.error("Error al guardar en Producción:", error);
+      return res.status(500).json({ message: "Error interno del servidor", error: error.message });
     }
 }
+  
 
-export async function eliminarDeProduccion(req, res) {
+export async function modificarProduccion(req, res) {
     try {
         const { id, cantidad } = req.params;
-        if (!id || !cantidad) {
+        if (!id || cantidad === undefined) {
             console.error("Datos inválidos:", { id, cantidad });
             return res.status(400).json({ message: "Datos inválidos" });
         }
@@ -66,31 +125,25 @@ export async function eliminarDeProduccion(req, res) {
             });
         }
 
-        if (produccionEncontrada.Cantidad < cantidad) {
-            console.error(`Cantidad a eliminar excede la cantidad disponible: ${cantidad}`);
+        const nuevaCantidad = produccionEncontrada.Cantidad + cantidad;
+
+        if (nuevaCantidad < 0) {
+            console.error(`Cantidad resultante negativa: ${nuevaCantidad}`);
             return res.status(400).json({
-                message: `La cantidad a eliminar excede la cantidad disponible en producción.`,
+                message: `La cantidad resultante no puede ser negativa.`,
             });
         }
 
-        produccionEncontrada.Cantidad -= cantidad;
+        produccionEncontrada.Cantidad = nuevaCantidad;
 
-        if (produccionEncontrada.Cantidad === 0) {
-            await Produccion.destroy({
-                where: { id_Produccion: id },
-            });
-            return res.status(200).json({
-                message: "Producción eliminada exitosamente.",
-            });
-        } else {
-            await produccionEncontrada.save();
-            return res.status(200).json({
-                message: "Cantidad eliminada exitosamente de la producción.",
-                data: produccionEncontrada,
-            });
-        }
+        await produccionEncontrada.save();
+
+        return res.status(200).json({
+            message: "Producción modificada exitosamente.",
+            data: produccionEncontrada,
+        });
     } catch (error) {
-        console.error("Error al eliminar de Producción:", error);
+        console.error("Error al modificar Producción:", error);
         return res.status(500).json({ message: "Error interno del servidor", error: error.message });
     }
 }
@@ -157,4 +210,4 @@ export async function exportarExcellProduccion(req, res) {
 }
 
 
-export default { guardarEnProduccion, eliminarDeProduccion, exportarExcellProduccion };
+export default { guardarEnProduccion, modificarProduccion, exportarExcellProduccion };

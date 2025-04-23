@@ -23,6 +23,7 @@ import ivaComprasRoutes from './routes/ivaCompras.routes.js';
 import gastosroutes from './routes/gastos.routes.js';
 import tipogastosroutes from './routes/tipogastos.routes.js';
 import usuariosroutes from './routes/usuarios.routes.js';
+import materiaprimaroutes from './routes/materiaprima.routes.js';
 
 //modelos
 // import './models/Usuario.js';
@@ -35,8 +36,10 @@ import usuariosroutes from './routes/usuarios.routes.js';
 // import './models/Estados.js';
 // import './models/Vendedores.js';
 // import './models/MateriaPrima.js';
+// import './models/MateriaPrimaPorProducto.js';
 // import './models/Concepto.js';
 // import './models/Compras.js';
+import './models/CompraMateriaPrima.js';
 // import './models/IVACompras.js';
 // import './models/IVAVentas.js';
 // import './models/Gastos.js';
@@ -81,6 +84,7 @@ app.use('/api', ivaComprasRoutes);
 app.use('/api', gastosroutes);
 app.use('/api', tipogastosroutes);
 app.use('/api', usuariosroutes);
+app.use('/api', materiaprimaroutes);
 
 
 
