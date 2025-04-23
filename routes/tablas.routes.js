@@ -9,7 +9,7 @@ router.get('/tablasTodas', async (req, res) => {
         const query = "SELECT tablename as table_name FROM pg_catalog.pg_tables WHERE schemaname = 'public'";
 
         const [result] = await sequelize.query(query);
-        const filteredResult = result.filter(table => !['Conceptos', 'Estados', 'Remito', 'RemitoProducto', 'TipoGastos', 'Productos'].includes(table.table_name));
+        const filteredResult = result.filter(table => !['Conceptos', 'Estados', 'Remito', 'RemitoProducto', 'TipoGastos', 'Productos', 'MateriaPrimaPorProducto', 'CompraMateriaPrima'].includes(table.table_name));
 
         res.json(filteredResult);
     } catch (error) {
@@ -25,7 +25,7 @@ router.get('/tablasExcell', async (req, res) => {
 
         const [result] = await sequelize.query(query);
         const filteredResult = result.filter(table => !['Usuarios', 'Conceptos', 'Estados', 'Gastos', 'IVACompras', 'IVAVentas',
-            'MateriaPrima', 'TipoGastos', 'Vendedores', 'Proveedor', 'Remito', 'RemitoProducto'].includes(table.table_name));
+            'MateriaPrima', 'TipoGastos', 'Vendedores', 'Proveedor', 'Remito', 'RemitoProducto', 'MateriaPrimaPorProducto', 'CompraMateriaPrima'].includes(table.table_name));
         res.json(filteredResult);
     } catch (error) {
         console.error("Error al obtener las tablas:", error);

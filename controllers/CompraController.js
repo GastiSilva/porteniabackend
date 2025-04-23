@@ -1,6 +1,7 @@
 import Compras from "../models/Compras.js";
 import Estado from "../models/Estados.js";
 import MateriaPrima from "../models/MateriaPrima.js";
+import CompraMateriaPrima from "../models/CompraMateriaPrima.js";
 import sequelize from '../config.js';
 import ExcelJS from "exceljs"
 import dayjs from 'dayjs';
@@ -122,51 +123,71 @@ export async function exportarExcellCompras(req, res) {
 
 export const guardarCompra = async (req, res) => {
     try {
-      const { compra, materiaPrima, estadoId } = req.body;
-  
-      // Validación del estado
+      const { compra, materiasPrimas, estadoId } = req.body;
       const estado = await Estado.findByPk(estadoId);
       if (!estado) {
         return res.status(400).json({ message: 'Estado no válido' });
       }
-  
-      // Crear la materia prima
-      const nuevaMateria = await MateriaPrima.create({
-        Nombre: materiaPrima.Nombre,
-        Fecha: materiaPrima.Fecha,
-        Marca: materiaPrima.Marca,
-        Cantidad: materiaPrima.Cantidad,
-        PrecioUnitario: materiaPrima.PrecioUnitario,
-        PrecioTotal: materiaPrima.PrecioTotal,
-      });
-  
-      // Crear la compra con la materia prima relacionada
       const nuevaCompra = await Compras.create({
         Fecha: compra.Fecha,
-        id_MateriaPrima: nuevaMateria.id_MateriaPrima, // FK correcta
-        Id_Estado: estadoId, // FK correcta
-        Cantidad: compra.Cantidad,
-        PrecioUnit: compra.PrecioUnit,
+        Id_Estado: estadoId,
         Factura_N: compra.Factura_N,
         Importe: compra.Importe,
+        Marca: compra.Marca, 
+        IVA21: compra.IVA21,
+        IVA10_5: compra.IVA10_5,
+        PercepcionIVA: compra.PercepcionIVA,
+        PercepcionesMuniCba: compra.PercepcionesMuniCba,
+        Flete: compra.Flete,
       });
   
+      for (const mp of materiasPrimas) {
+        let materia = await MateriaPrima.findOne({ where: { Nombre: mp.Nombre } });
+        
+        if (!materia) {
+          materia = await MateriaPrima.create({ Nombre: mp.Nombre});
+        }
+        
+        await CompraMateriaPrima.create({
+          Id_Compras: nuevaCompra.Id_Compras,
+          id_MateriaPrima: materia.id_MateriaPrima,
+          Cantidad: mp.Cantidad,
+        });
+      }
+  
       return res.status(201).json({
-        message: 'Compra y materia prima guardadas con éxito',
+        message: 'Compra y materias primas guardadas con éxito',
         compra: nuevaCompra,
-        materiaPrima: nuevaMateria
       });
+
     } catch (error) {
       console.error('Error al guardar la compra:', error);
       return res.status(500).json({
         message: 'Error al guardar la compra',
-        error: error.message
+        error: error.message,
       });
     }
-  };
+}
+
+export async function obtenerStock(req, res) {
+  try {
+    const stock = await CompraMateriaPrima.findAll({
+      attributes: ['id_MateriaPrima', [sequelize.fn('sum', sequelize.col('Cantidad')), 'totalCantidad']],
+      group: ['id_MateriaPrima'],
+      raw: true,
+    });
+
+    return res.status(200).json(stock);
+  } catch (error) {
+    console.error("Error al obtener stock:", error);
+    return res.status(500).json({ message: "Error interno del servidor", error: error.message });
+  }
+}
+;
 
 export default {
     obtenerEstructuraCompras,
     exportarExcellCompras,
-    guardarCompra
+    guardarCompra,
+    obtenerStock
 };

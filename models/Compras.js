@@ -1,7 +1,8 @@
 import { DataTypes } from "sequelize";
 import sequelize from "../config.js";
+import Estado from "./Estados.js";
+import CompraMateriaPrima from "./CompraMateriaPrima.js";
 import MateriaPrima from "./MateriaPrima.js";
-import Estado from "./Estados.js"; 
 
 const Compras = sequelize.define(
   "Compras",
@@ -15,16 +16,6 @@ const Compras = sequelize.define(
       type: DataTypes.DATE,
       allowNull: false,
     },
-    id_MateriaPrima: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-      references: {
-        model: MateriaPrima,
-        key: "id_MateriaPrima",
-      },
-      onUpdate: "CASCADE",
-      onDelete: "CASCADE",
-    },
     Id_Estado: {
       type: DataTypes.INTEGER,
       allowNull: false,
@@ -34,15 +25,7 @@ const Compras = sequelize.define(
         key: "Id_Estado",
       },
       onUpdate: "CASCADE",
-      onDelete: "SET NULL", 
-    },
-    Cantidad: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-    },
-    PrecioUnit: {
-      type: DataTypes.DECIMAL(10, 2),
-      allowNull: false,
+      onDelete: "SET NULL",
     },
     Factura_N: {
       type: DataTypes.STRING,
@@ -52,6 +35,30 @@ const Compras = sequelize.define(
       type: DataTypes.DECIMAL(10, 2),
       allowNull: false,
     },
+    Marca: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    IVA21: {
+      type: DataTypes.DECIMAL(10,2),
+      allowNull: true
+    },
+    IVA10_5: {
+      type: DataTypes.DECIMAL(10,2),
+      allowNull: true
+    },
+    PercepcionIVA: {
+      type: DataTypes.DECIMAL(10,2), // Cambio a DECIMAL
+      allowNull: true
+    },
+    PercepcionesMuniCba: {
+      type: DataTypes.DECIMAL(10,2),
+      allowNull: true
+    },
+    Flete: {
+      type: DataTypes.DECIMAL(10,2),
+      allowNull: true
+    },
   },
   {
     tableName: "Compras",
@@ -59,8 +66,17 @@ const Compras = sequelize.define(
   }
 );
 
-// Definiendo las relaciones correctamente
-Compras.belongsTo(MateriaPrima, { foreignKey: "id_MateriaPrima" });
-Compras.belongsTo(Estado, { foreignKey: "Id_Estado" }); 
+
+Compras.belongsTo(Estado, { foreignKey: "Id_Estado" });
+
+Compras.belongsToMany(MateriaPrima, {
+  through: CompraMateriaPrima,
+  foreignKey: "Id_Compras",
+});
+
+MateriaPrima.belongsToMany(Compras, {
+  through: CompraMateriaPrima,
+  foreignKey: "id_MateriaPrima",
+});
 
 export default Compras;
