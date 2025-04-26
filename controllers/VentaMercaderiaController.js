@@ -43,17 +43,17 @@ export async function guardarVentaMercaderia(req, res) {
         }
 
         const resultados = await VentasMercaderia.bulkCreate(registrosVentaMercaderia);
-        
+
         for (const registro of registrosVentaMercaderia) {
             const { id_Producto, Cantidad } = registro;
             const productos = await Produccion.findAll({
                 where: { id_Producto },
-                order: [['Fecha', 'ASC']], 
+                order: [['Fecha', 'ASC']],
             });
             let cantidadRestante = Cantidad;
-        
+
             for (const producto of productos) {
-                if (cantidadRestante <= 0) break;    
+                if (cantidadRestante <= 0) break;
                 if (producto.Cantidad <= cantidadRestante) {
                     await producto.destroy();
                     cantidadRestante -= producto.Cantidad;
@@ -65,7 +65,7 @@ export async function guardarVentaMercaderia(req, res) {
                 }
             }
         }
-        
+
 
         return res.status(201).json({
             message: "Productos guardados exitosamente en Ventas.",
@@ -151,14 +151,19 @@ export async function modificarCantidadVenta(req, res) {
 export async function exportarExcellVentas(req, res) {
     try {
         const { fechaDesde, fechaHasta } = req.body;
-                const whereClause = {};
-                if (fechaDesde && fechaHasta) {
-                    const desde = dayjs(fechaDesde).startOf('day').toDate();
-                    const hasta = dayjs(fechaHasta).endOf('day').toDate();
-                    whereClause.Fecha = {
-                        [Op.between]: [desde, hasta],
-                    };
-                }
+        const whereClause = {};
+        if (fechaDesde && fechaHasta) {
+            const desde = dayjs(fechaDesde).startOf('day').toDate();
+            const hasta = dayjs(fechaHasta).endOf('day').toDate();
+            whereClause.Fecha = { [Op.between]: [desde, hasta] };
+        } else if (fechaDesde) {
+            const desde = dayjs(fechaDesde).startOf('day').toDate();
+            whereClause.Fecha = { [Op.gte]: desde };
+        } else if (fechaHasta) {
+            const hasta = dayjs(fechaHasta).endOf('day').toDate();
+            whereClause.Fecha = { [Op.lte]: hasta };
+        }
+
         const ventasM = await VentasMercaderia.findAll({
             where: whereClause,
             include: [
@@ -185,8 +190,8 @@ export async function exportarExcellVentas(req, res) {
 
         worksheet.getRow(1).eachCell(cell => {
             cell.font = { bold: true };
-          });
-          
+        });
+
         ventasM.forEach((item) => {
             worksheet.addRow({
                 Fecha: dayjs(item.Fecha).format('YYYY-MM-DD'),

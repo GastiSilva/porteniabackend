@@ -7,13 +7,18 @@ export async function exportarExcellEgresos(req, res) {
     try {
          const { fechaDesde, fechaHasta } = req.body;
                 const whereClause = {};
-                if (fechaDesde && fechaHasta) {
-                    const desde = dayjs(fechaDesde).startOf('day').toDate();
-                    const hasta = dayjs(fechaHasta).endOf('day').toDate();
-                    whereClause.Fecha = {
-                        [Op.between]: [desde, hasta],
-                    };
-                }
+                    if (fechaDesde && fechaHasta) {
+                      const desde = dayjs(fechaDesde).startOf('day').toDate();
+                      const hasta = dayjs(fechaHasta).endOf('day').toDate();
+                      whereClause.Fecha = { [Op.between]: [desde, hasta] };
+                    } else if (fechaDesde) {
+                      const desde = dayjs(fechaDesde).startOf('day').toDate();
+                      whereClause.Fecha = { [Op.gte]: desde };
+                    } else if (fechaHasta) {
+                      const hasta = dayjs(fechaHasta).endOf('day').toDate();
+                      whereClause.Fecha = { [Op.lte]: hasta };
+                    }
+                
 
         const egresos = await Egresos.findAll({
             where: whereClause,
