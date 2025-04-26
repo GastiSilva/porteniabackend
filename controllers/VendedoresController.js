@@ -48,3 +48,13 @@ export const eliminarVendedor = async (req, res) => {
       return res.status(500).json({ mensaje: 'Error del servidor' });
     }
   };
+
+  export const  obtenerTodosVendedores = async (req, res) => {
+    try {
+      const vendedores = await Vendedores.findAll();
+      return res.status(200).json(vendedores);
+    } catch (error) {
+      console.error('Error del servidor:', error);
+      return res.status(500).json({ mensaje: 'Error del servidor' });
+    }
+    };

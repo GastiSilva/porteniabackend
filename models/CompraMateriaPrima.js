@@ -21,6 +21,10 @@ const CompraMateriaPrima = sequelize.define(
       type: DataTypes.INTEGER,
       allowNull: false,
     },
+    PrecioUnitario: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    },
   },
   {
     tableName: "CompraMateriaPrima",

@@ -48,7 +48,7 @@ const Compras = sequelize.define(
       allowNull: true
     },
     PercepcionIVA: {
-      type: DataTypes.DECIMAL(10,2), // Cambio a DECIMAL
+      type: DataTypes.DECIMAL(10,2), 
       allowNull: true
     },
     PercepcionesMuniCba: {

@@ -8,14 +8,19 @@ import { Op } from "sequelize";
 export async function exportarExcellIngresos(req, res) {
     try {
         const { fechaDesde, fechaHasta } = req.body;
-                const whereClause = {};
-                if (fechaDesde && fechaHasta) {
-                    const desde = dayjs(fechaDesde).startOf('day').toDate();
-                    const hasta = dayjs(fechaHasta).endOf('day').toDate();
-                    whereClause.Fecha = {
-                        [Op.between]: [desde, hasta],
-                    };
-                }
+        const whereClause = {};
+        if (fechaDesde && fechaHasta) {
+            const desde = dayjs(fechaDesde).startOf('day').toDate();
+            const hasta = dayjs(fechaHasta).endOf('day').toDate();
+            whereClause.Fecha = { [Op.between]: [desde, hasta] };
+        } else if (fechaDesde) {
+            const desde = dayjs(fechaDesde).startOf('day').toDate();
+            whereClause.Fecha = { [Op.gte]: desde };
+        } else if (fechaHasta) {
+            const hasta = dayjs(fechaHasta).endOf('day').toDate();
+            whereClause.Fecha = { [Op.lte]: hasta };
+        }
+
 
         const ingresos = await Ingresos.findAll({
             where: whereClause,
@@ -50,20 +55,20 @@ export async function exportarExcellIngresos(req, res) {
 
         worksheet.getRow(1).eachCell(cell => {
             cell.font = { bold: true };
-          }); 
+        });
 
         ingresos.forEach((item) => {
-            let metodoPago = "No especificado";
-
-            if (item.Cheque) metodoPago = "Cheque";
-            else if (item.Efectivo) metodoPago = "Efectivo";
-            else if (item.Transferencia) metodoPago = "Transferencia";
+            let metodoPago = [];
+            if (item.Cheque) metodoPago.push("Cheque");
+            if (item.Efectivo) metodoPago.push("Efectivo");
+            if (item.Transferencia) metodoPago.push("Transferencia");
+            metodoPago = metodoPago.length > 0 ? metodoPago.join(", ") : "No especificado";
             worksheet.addRow({
                 Fecha: dayjs(item.Fecha).format('YYYY-MM-DD'),
                 Descripcion: `${item.Nombre} - ${item.Detalle || "Sin detalle"}`,
                 Comprobante: item.NroComprobante,
                 Total: item.Total,
-                Vendedor: item.Vendedor.Nombre,
+                Vendedor: item.Vendedor?.Nombre || "No especificado",
                 Pago: metodoPago,
                 EstadoPago: item.Estado.Estado,
             });
@@ -114,5 +119,44 @@ export async function modificarIngreso(req, res) {
     }
 }
 
+export async function agregarIngreso(req, res) {
+    try {
+        const { Fecha, Nombre, Detalle, NroComprobante, Total, Id_Vendedor, Id_Estado, MetodoPago } = req.body;
 
-export default { exportarExcellIngresos, modificarIngreso };
+        if (!Fecha || !Nombre || !Total || !Id_Vendedor || !Id_Estado || !MetodoPago) {
+            return res.status(400).json({ message: "Datos insuficientes para agregar el ingreso." });
+        }
+
+        const vendedor = await Vendedor.findByPk(Id_Vendedor);
+        if (!vendedor) {
+            return res.status(404).json({ message: "Vendedor no encontrado." });
+        }
+
+        const estado = await Estado.findByPk(Id_Estado);
+        if (!estado) {
+            return res.status(404).json({ message: "Estado no encontrado." });
+        }
+
+        const nuevoIngreso = await Ingresos.create({
+            Fecha,
+            Nombre,
+            Detalle,
+            NroComprobante,
+            Total,
+            Id_Vendedor,
+            Id_Estado,
+            Cheque: MetodoPago.includes('Cheque'),
+            Efectivo: MetodoPago.includes('Efectivo'),
+            Transferencia: MetodoPago.includes('Transferencia'),
+
+        });
+        console.log("NUEVO INGRESO", nuevoIngreso)
+
+        res.status(201).json({ message: "Ingreso agregado correctamente.", ingreso: nuevoIngreso });
+    } catch (error) {
+        console.error("Error al agregar el ingreso:", error);
+        return res.status(500).json({ message: "Error interno del servidor", error: error.message });
+    }
+}
+
+export default { exportarExcellIngresos, modificarIngreso, agregarIngreso };

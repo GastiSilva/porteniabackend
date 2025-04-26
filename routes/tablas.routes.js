@@ -9,7 +9,7 @@ router.get('/tablasTodas', async (req, res) => {
         const query = "SELECT tablename as table_name FROM pg_catalog.pg_tables WHERE schemaname = 'public'";
 
         const [result] = await sequelize.query(query);
-        const filteredResult = result.filter(table => !['Conceptos', 'Estados', 'Remito', 'RemitoProducto', 'TipoGastos', 'Productos', 'MateriaPrimaPorProducto', 'CompraMateriaPrima'].includes(table.table_name));
+        const filteredResult = result.filter(table => !['Conceptos', 'Estados', 'Remito', 'RemitoProducto', 'TipoGastos', 'Productos',  'CompraMateriaPrima'].includes(table.table_name));
 
         res.json(filteredResult);
     } catch (error) {
@@ -56,7 +56,6 @@ router.get('/datosTablas/:tableName', async (req, res) => {
         `;
         const [foreignKeys] = await sequelize.query(fkQuery);
 
-        // Verificar si la tabla tiene la columna "Fecha"
         const columnCheckQuery = `
             SELECT column_name 
             FROM information_schema.columns 
@@ -67,18 +66,24 @@ router.get('/datosTablas/:tableName', async (req, res) => {
         const [fechaColumnResult] = await sequelize.query(columnCheckQuery);
         const tieneColumnaFecha = fechaColumnResult.length > 0;
 
-        // Armar query principal con filtro si corresponde
         let query = `SELECT * FROM "public"."${tableName}"`;
-        if (tieneColumnaFecha && fechaDesde && fechaHasta) {
-            const desde = dayjs(fechaDesde).startOf('day').toISOString();
-            const hasta = dayjs(fechaHasta).endOf('day').toISOString();
-
-            query += ` WHERE "Fecha" BETWEEN '${desde}' AND '${hasta}'`;
+        if (tieneColumnaFecha) {
+            if (fechaDesde && !fechaHasta) {
+                query += ` WHERE "Fecha" >= '${dayjs(fechaDesde).startOf('day').toISOString()}'`;
+            } else if (!fechaDesde && fechaHasta) {
+                query += ` WHERE "Fecha" <= '${dayjs(fechaHasta).endOf('day').toISOString()}'`;
+            }
+            else {
+                if (fechaDesde && fechaHasta) {
+                    const desde = dayjs(fechaDesde).startOf('day').toISOString();
+                    const hasta = dayjs(fechaHasta).endOf('day').toISOString();
+                    query += ` WHERE "Fecha" >= '${desde}' AND "Fecha" <= '${hasta}'`;
+                }
+            }
         }
 
         const [result] = await sequelize.query(query);
 
-        // Si no hay registros, devolver solo las columnas
         if (result.length === 0) {
             const columnQuery = `
                 SELECT column_name 

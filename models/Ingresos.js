@@ -67,7 +67,7 @@ const Ingresos = sequelize.define('Ingresos', {
 
 // Relación con Vendedor
 Ingresos.belongsTo(Vendedor, {
-  foreignKey: 'id_Vendedor',
+  foreignKey: 'Id_Vendedor',
   targetKey: 'Id_Vendedor'
 });
 

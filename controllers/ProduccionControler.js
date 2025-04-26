@@ -22,45 +22,25 @@ export async function guardarEnProduccion(req, res) {
       for (const producto of productos) {
         const { id, cantidad, fecha } = producto;
   
-        // 1. Buscar las materias primas necesarias
         const materiasUsadas = await MateriaPrimaPorProducto.findAll({
           where: { id_Producto: id }
         });
-  
-        // 2. Validar si hay stock suficiente
+        
         for (const item of materiasUsadas) {
           const cantidadAConsumir = item.cantidadNecesaria * cantidad;
           const materia = await MateriaPrima.findByPk(item.id_MateriaPrima);
-  
+        
           if (!materia) {
             return res.status(404).json({ message: `Materia prima con ID ${item.id_MateriaPrima} no encontrada.` });
           }
-  
-          // Buscar la cantidad total comprada de esta materia prima
           const comprasMateriaPrima = await CompraMateriaPrima.findAll({
             where: { id_MateriaPrima: item.id_MateriaPrima }
           });
-  
-          // Sumar la cantidad de materia prima comprada
           const cantidadComprada = comprasMateriaPrima.reduce((total, compra) => total + compra.Cantidad, 0);
-  
-          // Verificar si hay suficiente stock
           if (cantidadComprada < cantidadAConsumir) {
             return res.status(400).json({ message: `Stock insuficiente de ${materia.Nombre}. Se requiere ${cantidadAConsumir}, disponible: ${cantidadComprada}` });
           }
-        }
-  
-        // 3. Descontar materia prima
-        for (const item of materiasUsadas) {
-          const cantidadAConsumir = item.cantidadNecesaria * cantidad;
-          const materia = await MateriaPrima.findByPk(item.id_MateriaPrima);
-  
-          // Buscar las compras realizadas de esta materia prima
-          const comprasMateriaPrima = await CompraMateriaPrima.findAll({
-            where: { id_MateriaPrima: item.id_MateriaPrima }
-          });
-  
-          // Restar de las compras el stock consumido
+        
           let cantidadRestante = cantidadAConsumir;
           for (const compra of comprasMateriaPrima) {
             if (compra.Cantidad >= cantidadRestante) {
@@ -75,7 +55,28 @@ export async function guardarEnProduccion(req, res) {
           }
         }
   
-        // 4. Guardar o actualizar la producción
+        for (const item of materiasUsadas) {
+          const cantidadAConsumir = item.cantidadNecesaria * cantidad;
+          const materia = await MateriaPrima.findByPk(item.id_MateriaPrima);
+  
+          const comprasMateriaPrima = await CompraMateriaPrima.findAll({
+            where: { id_MateriaPrima: item.id_MateriaPrima }
+          });
+  
+          let cantidadRestante = cantidadAConsumir;
+          for (const compra of comprasMateriaPrima) {
+            if (compra.Cantidad >= cantidadRestante) {
+              compra.Cantidad -= cantidadRestante;
+              await compra.save();
+              break;
+            } else {
+              cantidadRestante -= compra.Cantidad;
+              compra.Cantidad = 0;
+              await compra.save();
+            }
+          }
+        }
+  
         const produccionExistente = await Produccion.findOne({
           where: { id_Producto: id },
         });
@@ -152,13 +153,18 @@ export async function exportarExcellProduccion(req, res) {
     try {
         const { fechaDesde, fechaHasta } = req.body;
         const whereClause = {};
-        if (fechaDesde && fechaHasta) {
-            const desde = dayjs(fechaDesde).startOf('day').toDate();
-            const hasta = dayjs(fechaHasta).endOf('day').toDate();
-            whereClause.Fecha = {
-                [Op.between]: [desde, hasta],
-            };
-        }
+            if (fechaDesde && fechaHasta) {
+              const desde = dayjs(fechaDesde).startOf('day').toDate();
+              const hasta = dayjs(fechaHasta).endOf('day').toDate();
+              whereClause.Fecha = { [Op.between]: [desde, hasta] };
+            } else if (fechaDesde) {
+              const desde = dayjs(fechaDesde).startOf('day').toDate();
+              whereClause.Fecha = { [Op.gte]: desde };
+            } else if (fechaHasta) {
+              const hasta = dayjs(fechaHasta).endOf('day').toDate();
+              whereClause.Fecha = { [Op.lte]: hasta };
+            }
+        
 
         const produccion = await Produccion.findAll({
             where: whereClause,

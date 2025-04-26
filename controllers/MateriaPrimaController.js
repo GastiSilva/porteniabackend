@@ -23,4 +23,14 @@ export const agregarMateriaPrima = async (req, res) => {
     }
 };
 
-export default {agregarMateriaPrima};
+export const obtenerMateriasPrimas = async (req, res) => {
+    try {
+        const materiasPrimas = await MateriaPrima.findAll();
+        res.status(200).json({ data: materiasPrimas });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Error al obtener materias primas" });
+    }
+};
+
+export default {agregarMateriaPrima, obtenerMateriasPrimas};
