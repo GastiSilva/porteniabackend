@@ -7,8 +7,9 @@ import { Writable } from 'stream';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc.js';
 dayjs.extend(utc);
+import { Op } from "sequelize";
 
-// Función para generar y enviar el PDF
+
 export const generarPDF = async (req, res) => {
   const doc = new PDFDocument();
 
@@ -228,7 +229,22 @@ doc.font('Helvetica').text(EstadoEncontrado.Estado, estadoBoxX + 45, estadoBoxY 
 
 export const obtenerRemitos = async (req, res) => {   
   try {
+    const { fechaDesde, fechaHasta } = req.query;
+    const whereClause = {};
+    if (fechaDesde && fechaHasta) {
+      const desde = dayjs(fechaDesde).startOf('day').toDate();
+      const hasta = dayjs(fechaHasta).endOf('day').toDate();
+      whereClause.Fecha = { [Op.between]: [desde, hasta] };
+    } else if (fechaDesde) {
+      const desde = dayjs(fechaDesde).startOf('day').toDate();
+      whereClause.Fecha = { [Op.gte]: desde };
+    } else if (fechaHasta) {
+      const hasta = dayjs(fechaHasta).endOf('day').toDate();
+      whereClause.Fecha = { [Op.lte]: hasta };
+    }
+
     const remitos = await Remito.findAll({
+      where: whereClause,
       attributes: ['Id_Remito', 'Senior', 'Fecha', 'Id_Estado', 'remitoPDF']
     });
     
@@ -244,19 +260,18 @@ export const obtenerRemitos = async (req, res) => {
 
     const remitosConTotal = await Promise.all(remitosConEstado.map(async (remito) => {
       const remitoTotal = await RemitoProducto.findAll({
-      where: { Id_Remito: remito.Id_Remito },
-      attributes: ['PrecioTotal']
+        where: { Id_Remito: remito.Id_Remito },
+        attributes: ['PrecioTotal']
       });
 
       const total = remitoTotal.reduce((sum, rp) => sum + parseFloat(rp.toJSON().PrecioTotal || 0), 0);
 
       return {
-      ...remito,
-      Total: total
+        ...remito,
+        Total: total
       };
     }));
 
-    // Enviamos solo una respuesta
     return res.status(200).json(remitosConTotal);
     
   } catch (error) {
@@ -308,5 +323,5 @@ export const eliminarRemito = async (req, res) => {
   }
 };
 
-// Exportar el controlador
+
 export default { generarPDF, obtenerRemitos, obtenerPDF, eliminarRemito }; 
