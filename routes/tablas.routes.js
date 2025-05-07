@@ -9,7 +9,7 @@ router.get('/tablasTodas', async (req, res) => {
         const query = "SELECT tablename as table_name FROM pg_catalog.pg_tables WHERE schemaname = 'public'";
 
         const [result] = await sequelize.query(query);
-        const filteredResult = result.filter(table => !['Conceptos', 'Estados', 'Remito', 'RemitoProducto', 'TipoGastos', 'Productos',  'CompraMateriaPrima'].includes(table.table_name));
+        const filteredResult = result.filter(table => !['Conceptos', 'Estados', 'Remito', 'RemitoProducto', 'TipoGastos',  'CompraMateriaPrima'].includes(table.table_name));
 
         res.json(filteredResult);
     } catch (error) {
@@ -107,48 +107,49 @@ router.get('/datosTablas/:tableName', async (req, res) => {
         const resultadoFormateado = result.map(row => {
             const filaProcesada = { ...row };
             const fechaOriginal = filaProcesada.Fecha;
+            //si es la tabla MateriaPrimaPorProducto, se reemplaza el id_Producto por el nombre y el codigo del producto
+            if (tableName === 'MateriaPrimaPorProducto') {
+                const productoData = foreignData['id_Producto']?.find(p => p.Id_Producto === row.id_Producto);
+                if (productoData) {
+                    filaProcesada.Producto = `${productoData.Codigo} - ${productoData.Nombre}`;
+                }
+                const mpData = foreignData['id_MateriaPrima']?.find(mp => mp.id_MateriaPrima === row.id_MateriaPrima);
+                if (mpData) {
+                    filaProcesada["Materia Prima"] = mpData.Nombre;
+                }
 
-            // Reemplazar claves foráneas por sus datos
-            for (const fk of foreignKeys) {
-                const fkColumn = fk.column_name;
-                const relatedTableData = foreignData[fkColumn];
-
-                if (row[fkColumn]) {
-                    const filaRelacionada = relatedTableData.find(
-                        related => related[fk.foreign_column] === row[fkColumn]
-                    );
-
-                    if (filaRelacionada) {
-                        Object.keys(filaRelacionada).forEach(key => {
-                            if (!key.toLowerCase().startsWith('id')) {
-                                filaProcesada[key] = filaRelacionada[key];
-                            }
-                        });
-                        delete filaProcesada[fkColumn];
+            } else {
+                // Reemplazo estándar de claves foráneas
+                for (const fk of foreignKeys) {
+                    const fkColumn = fk.column_name;
+                    const relatedTableData = foreignData[fkColumn];
+        
+                    if (row[fkColumn]) {
+                        const filaRelacionada = relatedTableData.find(
+                            related => related[fk.foreign_column] === row[fkColumn]
+                        );
+        
+                        if (filaRelacionada) {
+                            Object.keys(filaRelacionada).forEach(key => {
+                                if (!key.toLowerCase().startsWith('id')) {
+                                    filaProcesada[key] = filaRelacionada[key];
+                                }
+                            });
+                            delete filaProcesada[fkColumn];
+                        }
                     }
                 }
             }
+        
             filaProcesada.Fecha = fechaOriginal;
-
-            // Agregar campo "Proveedor/Cliente" si la tabla es IVAVentas
-            if (tableName === 'IVAVentas') {
-                if (filaProcesada.Nombre && filaProcesada.Cuil) {
-                    filaProcesada["Proveedor/Cliente"] = `Cliente`;
-                } else if (filaProcesada.Nombre && filaProcesada.Cuit) {
-                    filaProcesada["Proveedor/Cliente"] = `Proveedor`;
-                } else {
-                    filaProcesada["Proveedor/Cliente"] = 'Desconocido';
-                }
-            }
-
-            // Formatear la fecha si existe
             if (filaProcesada.Fecha) {
                 const date = new Date(filaProcesada.Fecha);
                 filaProcesada.Fecha = `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
             }
-
+        
             return filaProcesada;
         });
+        
 
         // Ordenar por fecha si existe
         if (resultadoFormateado.length > 0 && resultadoFormateado[0].Fecha) {

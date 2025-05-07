@@ -9,6 +9,62 @@ import utc from 'dayjs/plugin/utc.js';
 dayjs.extend(utc);
 import { Op } from "sequelize";
 
+export async function obtenerProduccion(req, res) {
+  try {
+    const { fechaDesde, fechaHasta, idProducto } = req.query;
+    
+    const whereClause = {};
+    if (fechaDesde && fechaHasta) {
+      const desde = dayjs(fechaDesde).startOf('day').toDate();
+      const hasta = dayjs(fechaHasta).endOf('day').toDate();
+      whereClause.Fecha = { [Op.between]: [desde, hasta] };
+    } else if (fechaDesde) {
+      const desde = dayjs(fechaDesde).startOf('day').toDate();
+      whereClause.Fecha = { [Op.gte]: desde };
+    } else if (fechaHasta) {
+      const hasta = dayjs(fechaHasta).endOf('day').toDate();
+      whereClause.Fecha = { [Op.lte]: hasta };
+    }
+
+    if (idProducto) {
+      whereClause.Id_Producto = idProducto;
+    }
+
+    const produccion = await Produccion.findAll({
+      where: whereClause,
+      include: [
+        {
+          model: Producto,
+          as: "Producto",
+          attributes: ["Codigo", "Nombre"],
+        },
+      ],
+    });
+
+    if (!produccion || produccion.length === 0) {
+      return res.status(200).json({
+        message: "Registros de producción obtenidos exitosamente.",
+        data: [],
+      });
+    }
+
+    const produccionProcesada = produccion.map((fila) => {
+      const filaProcesada = fila.toJSON();
+      const date = new Date(filaProcesada.Fecha);
+      filaProcesada.Fecha = `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
+      return filaProcesada;
+    });
+
+    return res.status(200).json({
+      message: "Registros de producción obtenidos exitosamente.",
+      data: produccionProcesada,
+    });
+  } catch (error) {
+    console.error("Error al obtener Producción:", error);
+    return res.status(500).json({ message: "Error interno del servidor", error: error.message });
+  }
+}
+
 export async function guardarEnProduccion(req, res) {
     try {
       const { productos } = req.body;
@@ -21,7 +77,7 @@ export async function guardarEnProduccion(req, res) {
   
       for (const producto of productos) {
         const { id, cantidad, fecha } = producto;
-  
+    
         const materiasUsadas = await MateriaPrimaPorProducto.findAll({
           where: { id_Producto: id }
         });
@@ -77,22 +133,13 @@ export async function guardarEnProduccion(req, res) {
           }
         }
   
-        const produccionExistente = await Produccion.findOne({
-          where: { id_Producto: id },
+        const nuevoRegistro = await Produccion.create({
+          Id_Producto: id,
+          Cantidad: cantidad,
+          Fecha: dayjs(fecha).startOf('day').utc().format(),
         });
-  
-        if (produccionExistente) {
-          produccionExistente.Cantidad += cantidad;
-          await produccionExistente.save();
-          registrosProduccion.push(produccionExistente);
-        } else {
-          const nuevoRegistro = await Produccion.create({
-            Id_Producto: id,
-            Cantidad: cantidad,
-            Fecha: dayjs(fecha).startOf('day').utc().format(),
-          });
-          registrosProduccion.push(nuevoRegistro);
-        }
+        registrosProduccion.push(nuevoRegistro);
+        
       }
   
       return res.status(201).json({
@@ -105,7 +152,6 @@ export async function guardarEnProduccion(req, res) {
       return res.status(500).json({ message: "Error interno del servidor", error: error.message });
     }
 }
-  
 
 export async function modificarProduccion(req, res) {
     try {
@@ -216,4 +262,4 @@ export async function exportarExcellProduccion(req, res) {
 }
 
 
-export default { guardarEnProduccion, modificarProduccion, exportarExcellProduccion };
+export default { obtenerProduccion, guardarEnProduccion, modificarProduccion, exportarExcellProduccion };

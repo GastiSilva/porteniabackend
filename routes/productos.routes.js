@@ -1,5 +1,5 @@
 import { Router } from "express";
-import {exportarExcellProductos} from "../controllers/ProductosController.js";
+import {exportarExcellProductos, crearProducto} from "../controllers/ProductosController.js";
 import Producto from "../models/Producto.js";
 
 const router = Router();
@@ -16,6 +16,7 @@ router.post("/FetchProducts", async (req, res) => {
     }
 })
 router.get("/ExportarExcellProductos", exportarExcellProductos);
+router.post("/CrearProducto", crearProducto);
 
 
 

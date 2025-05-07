@@ -45,7 +45,7 @@ import materiaprimaroutes from './routes/materiaprima.routes.js';
 // import './models/Gastos.js';
 // import './models/Egresos.js';
 // import './models/EgresoGastosAsosiaciones.js';
-import './models/Ingresos.js'
+// import './models/Ingresos.js'
 // import './models/Remito.js';
 // import './models/RemitoProducto.js';
 // import './models/TipoGastos.js';

@@ -1,5 +1,5 @@
 import express from "express";
-import { guardarVentaMercaderia, exportarExcellVentas, modificarCantidadVenta } from "../controllers/VentaMercaderiaController.js";
+import { guardarVentaMercaderia, exportarExcellVentas, modificarCantidadVenta, obtenerVentasMercaderia } from "../controllers/VentaMercaderiaController.js";
 
 const router = express.Router();
 
@@ -7,5 +7,6 @@ const router = express.Router();
 router.post("/guardarVentaMercaderia", guardarVentaMercaderia);
 router.post("/ExportarExcellVentas", exportarExcellVentas);
 router.put("/ventasMercaderia/:id", modificarCantidadVenta);
+router.get("/ventasMercaderia", obtenerVentasMercaderia);
 
 export default router;

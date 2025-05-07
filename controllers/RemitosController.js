@@ -12,9 +12,6 @@ import { Op } from "sequelize";
 
 export const generarPDF = async (req, res) => {
   const doc = new PDFDocument();
-
-  //variables para su uso
-
   const {id} = req.params;
 
   const remito = await Remito.findByPk(id, {
