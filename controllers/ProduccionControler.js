@@ -172,7 +172,8 @@ export async function modificarProduccion(req, res) {
             });
         }
 
-        const nuevaCantidad = produccionEncontrada.Cantidad + cantidad;
+        const nuevaCantidad = produccionEncontrada.Cantidad + Number(cantidad);
+
 
         if (nuevaCantidad < 0) {
             console.error(`Cantidad resultante negativa: ${nuevaCantidad}`);

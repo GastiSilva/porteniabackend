@@ -15,6 +15,10 @@ const Egresos = sequelize.define('Egresos', {
     type: DataTypes.STRING,
     allowNull: false
   },
+  // Codigo: {
+  //   type: DataTypes.INTEGER,
+  //   allowNull: false
+  // },
   Comprobante: {
     type: DataTypes.STRING,
     allowNull: false
