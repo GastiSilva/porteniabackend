@@ -7,9 +7,7 @@ Este repositorio contiene el backend de un sistema de gestión desarrollado como
 - Node.js
 - Express.js
 - Sequelize (ORM)
-- PostgreSQL / MySQL (dependiendo de la configuración)
-- Multer (para manejo de archivos)
-- JWT (para autenticación si se implementa)
+- PostgreSQL (dependiendo de la configuración)
 - CORS, dotenv, y otras utilidades comunes
 
 ## 📁 Estructura de carpetas
