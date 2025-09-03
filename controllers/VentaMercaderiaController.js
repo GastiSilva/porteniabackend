@@ -1,12 +1,12 @@
-import Produccion from "../models/Produccion.js";
-import Producto from "../models/Producto.js";
-import VentasMercaderia from "../models/VentasMercaderia.js";
 import sequelize from "sequelize";
 import ExcelJS from "exceljs";
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc.js';
 dayjs.extend(utc);
 import { Op } from "sequelize";
+import Produccion from "../models/Produccion.js";
+import Producto from "../models/Producto.js";
+import VentasMercaderia from "../models/VentasMercaderia.js";
 import VentaMercaderia from "../models/VentasMercaderia.js";
 
 export async function obtenerVentasMercaderia(req, res) {
@@ -99,8 +99,6 @@ export async function guardarVentaMercaderia(req, res) {
             });
         }
 
-        const resultados = await VentasMercaderia.bulkCreate(registrosVentaMercaderia);
-
         for (const registro of registrosVentaMercaderia) {
             const { id_Producto, Cantidad } = registro;
             const productos = await Produccion.findAll({
@@ -111,18 +109,27 @@ export async function guardarVentaMercaderia(req, res) {
 
             for (const producto of productos) {
                 if (cantidadRestante <= 0) break;
-                if (producto.Cantidad <= cantidadRestante) {
-                    await producto.destroy();
-                    cantidadRestante -= producto.Cantidad;
-                } else {
+                if (producto.Cantidad >= cantidadRestante) {
                     await producto.update({
                         Cantidad: producto.Cantidad - cantidadRestante,
                     });
                     cantidadRestante = 0;
+                    break;
+                } else {
+                    cantidadRestante -= producto.Cantidad;
+                    await producto.update({ Cantidad: 0 });                
                 }
             }
+            if (cantidadRestante > 0) {
+                const productoinsuficiente = await Producto.findOne({ where: { Id_Producto: id_Producto } });
+                return res.status(500).json({
+                    message: `no hay suficiente stock de ${productoinsuficiente.Nombre.toLowerCase()} para completar la venta.`,
+                });
+            }
+
         }
 
+        const resultados = await VentasMercaderia.bulkCreate(registrosVentaMercaderia);
 
         return res.status(201).json({
             message: "Productos guardados exitosamente en Ventas.",

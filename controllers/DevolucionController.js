@@ -90,43 +90,22 @@ export async function guardarEnDevolucion(req, res) {
                     message: `El producto con nombre "${nombre}" no existe.`,
                 });
             }
-            console.log("Producto fgechaaaa:", fecha);
+
             registrosDevolucion.push({
                 id_Producto: productoEncontrado.Id_Producto,
                 Cantidad: cantidad,
                 Fecha: dayjs(fecha).startOf('day').utc().format(),
             });
         }
+        
 
         const resultados = await Devolucion.bulkCreate(registrosDevolucion);
         
-        for (const registro of registrosDevolucion) {
-            const { id_Producto, Cantidad } = registro;
-            const productos = await Produccion.findAll({
-                where: { id_Producto },
-                order: [['Fecha', 'ASC']], 
-            });
-            let cantidadRestante = Cantidad;
-        
-            for (const producto of productos) {
-                if (cantidadRestante <= 0) break;    
-                if (producto.Cantidad <= cantidadRestante) {
-                    await producto.destroy();
-                    cantidadRestante -= producto.Cantidad;
-                } else {
-                    await producto.update({
-                        Cantidad: producto.Cantidad - cantidadRestante,
-                    });
-                    cantidadRestante = 0;
-                }
-            }
-        }
-        
-
         return res.status(201).json({
-            message: "Productos guardados exitosamente en Producción.",
+            message: "Productos guardados exitosamente en Devolución.",
             data: resultados,
         });
+
     } catch (error) {
         console.error("Error al guardar en Devolucion:", error);
         return res.status(500).json({ message: "Error interno del servidor", error: error.message });
