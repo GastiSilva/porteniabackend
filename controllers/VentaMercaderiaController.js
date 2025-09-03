@@ -1,12 +1,69 @@
-import Produccion from "../models/Produccion.js";
-import Producto from "../models/Producto.js";
-import VentasMercaderia from "../models/VentasMercaderia.js";
 import sequelize from "sequelize";
 import ExcelJS from "exceljs";
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc.js';
 dayjs.extend(utc);
 import { Op } from "sequelize";
+import Produccion from "../models/Produccion.js";
+import Producto from "../models/Producto.js";
+import VentasMercaderia from "../models/VentasMercaderia.js";
+import VentaMercaderia from "../models/VentasMercaderia.js";
+
+export async function obtenerVentasMercaderia(req, res) {
+    try {
+      const { fechaDesde, fechaHasta, idProducto } = req.query;
+      
+      const whereClause = {};
+      if (fechaDesde && fechaHasta) {
+        const desde = dayjs(fechaDesde).startOf('day').toDate();
+        const hasta = dayjs(fechaHasta).endOf('day').toDate();
+        whereClause.Fecha = { [Op.between]: [desde, hasta] };
+      } else if (fechaDesde) {
+        const desde = dayjs(fechaDesde).startOf('day').toDate();
+        whereClause.Fecha = { [Op.gte]: desde };
+      } else if (fechaHasta) {
+        const hasta = dayjs(fechaHasta).endOf('day').toDate();
+        whereClause.Fecha = { [Op.lte]: hasta };
+      }
+  
+      if (idProducto) {
+        whereClause.id_Producto = idProducto;
+      }
+  
+      const ventas_mercaderia = await VentaMercaderia.findAll({
+        where: whereClause,
+        include: [
+          {
+            model: Producto,
+            as: "Producto",
+            attributes: ["Codigo", "Nombre"],
+          },
+        ],
+      });
+  
+      if (!ventas_mercaderia || ventas_mercaderia.length === 0) {
+        return res.status(200).json({
+          message: "No hay registros de ventas de mercaderia.",
+          data: [],
+        });
+      }
+  
+      const ventasProcesada = ventas_mercaderia.map((fila) => {
+        const filaProcesada = fila.toJSON();
+        const date = new Date(filaProcesada.Fecha);
+        filaProcesada.Fecha = `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
+        return filaProcesada;
+      });
+  
+      return res.status(200).json({
+        message: "Registros de ventas de mercaderia obtenidos exitosamente.",
+        data: ventasProcesada,
+      });
+    } catch (error) {
+      console.error("Error al obtener Devolucion:", error);
+      return res.status(500).json({ message: "Error interno del servidor", error: error.message });
+    }
+}
 
 export async function guardarVentaMercaderia(req, res) {
     try {
@@ -42,8 +99,6 @@ export async function guardarVentaMercaderia(req, res) {
             });
         }
 
-        const resultados = await VentasMercaderia.bulkCreate(registrosVentaMercaderia);
-
         for (const registro of registrosVentaMercaderia) {
             const { id_Producto, Cantidad } = registro;
             const productos = await Produccion.findAll({
@@ -54,18 +109,27 @@ export async function guardarVentaMercaderia(req, res) {
 
             for (const producto of productos) {
                 if (cantidadRestante <= 0) break;
-                if (producto.Cantidad <= cantidadRestante) {
-                    await producto.destroy();
-                    cantidadRestante -= producto.Cantidad;
-                } else {
+                if (producto.Cantidad >= cantidadRestante) {
                     await producto.update({
                         Cantidad: producto.Cantidad - cantidadRestante,
                     });
                     cantidadRestante = 0;
+                    break;
+                } else {
+                    cantidadRestante -= producto.Cantidad;
+                    await producto.update({ Cantidad: 0 });                
                 }
             }
+            if (cantidadRestante > 0) {
+                const productoinsuficiente = await Producto.findOne({ where: { Id_Producto: id_Producto } });
+                return res.status(500).json({
+                    message: `no hay suficiente stock de ${productoinsuficiente.Nombre.toLowerCase()} para completar la venta.`,
+                });
+            }
+
         }
 
+        const resultados = await VentasMercaderia.bulkCreate(registrosVentaMercaderia);
 
         return res.status(201).json({
             message: "Productos guardados exitosamente en Ventas.",
@@ -76,7 +140,6 @@ export async function guardarVentaMercaderia(req, res) {
         return res.status(500).json({ message: "Error interno del servidor", error: error.message });
     }
 }
-
 
 export async function modificarCantidadVenta(req, res) {
     try {
@@ -212,4 +275,4 @@ export async function exportarExcellVentas(req, res) {
     }
 }
 
-export default { guardarVentaMercaderia, exportarExcellVentas, modificarCantidadVenta }; 
+export default { guardarVentaMercaderia, exportarExcellVentas, modificarCantidadVenta, obtenerVentasMercaderia }; 

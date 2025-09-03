@@ -8,6 +8,61 @@ import utc from 'dayjs/plugin/utc.js';
 dayjs.extend(utc);
 import { Op } from "sequelize";
 
+export async function obtenerDevolucion(req, res) {
+    try {
+      const { fechaDesde, fechaHasta, idProducto } = req.query;
+      
+      const whereClause = {};
+      if (fechaDesde && fechaHasta) {
+        const desde = dayjs(fechaDesde).startOf('day').toDate();
+        const hasta = dayjs(fechaHasta).endOf('day').toDate();
+        whereClause.Fecha = { [Op.between]: [desde, hasta] };
+      } else if (fechaDesde) {
+        const desde = dayjs(fechaDesde).startOf('day').toDate();
+        whereClause.Fecha = { [Op.gte]: desde };
+      } else if (fechaHasta) {
+        const hasta = dayjs(fechaHasta).endOf('day').toDate();
+        whereClause.Fecha = { [Op.lte]: hasta };
+      }
+  
+      if (idProducto) {
+        whereClause.id_Producto = idProducto;
+      }
+  
+      const devolucion = await Devolucion.findAll({
+        where: whereClause,
+        include: [
+          {
+            model: Producto,
+            as: "Producto",
+            attributes: ["Codigo", "Nombre"],
+          },
+        ],
+      });
+  
+      if (!devolucion || devolucion.length === 0) {
+        return res.status(200).json({
+          message: "No hay registros de devolución.",
+          data: [],
+        });
+      }
+  
+      const devolucionProcesada = devolucion.map((fila) => {
+        const filaProcesada = fila.toJSON();
+        const date = new Date(filaProcesada.Fecha);
+        filaProcesada.Fecha = `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
+        return filaProcesada;
+      });
+  
+      return res.status(200).json({
+        message: "Registros de devolución obtenidos exitosamente.",
+        data: devolucionProcesada,
+      });
+    } catch (error) {
+      console.error("Error al obtener Devolucion:", error);
+      return res.status(500).json({ message: "Error interno del servidor", error: error.message });
+    }
+}
 
 export async function guardarEnDevolucion(req, res) {
     try {
@@ -35,43 +90,22 @@ export async function guardarEnDevolucion(req, res) {
                     message: `El producto con nombre "${nombre}" no existe.`,
                 });
             }
-            console.log("Producto fgechaaaa:", fecha);
+
             registrosDevolucion.push({
                 id_Producto: productoEncontrado.Id_Producto,
                 Cantidad: cantidad,
                 Fecha: dayjs(fecha).startOf('day').utc().format(),
             });
         }
+        
 
         const resultados = await Devolucion.bulkCreate(registrosDevolucion);
         
-        for (const registro of registrosDevolucion) {
-            const { id_Producto, Cantidad } = registro;
-            const productos = await Produccion.findAll({
-                where: { id_Producto },
-                order: [['Fecha', 'ASC']], 
-            });
-            let cantidadRestante = Cantidad;
-        
-            for (const producto of productos) {
-                if (cantidadRestante <= 0) break;    
-                if (producto.Cantidad <= cantidadRestante) {
-                    await producto.destroy();
-                    cantidadRestante -= producto.Cantidad;
-                } else {
-                    await producto.update({
-                        Cantidad: producto.Cantidad - cantidadRestante,
-                    });
-                    cantidadRestante = 0;
-                }
-            }
-        }
-        
-
         return res.status(201).json({
-            message: "Productos guardados exitosamente en Producción.",
+            message: "Productos guardados exitosamente en Devolución.",
             data: resultados,
         });
+
     } catch (error) {
         console.error("Error al guardar en Devolucion:", error);
         return res.status(500).json({ message: "Error interno del servidor", error: error.message });
@@ -261,4 +295,4 @@ export async function exportarExcellDevolucion(req, res) {
     }
 }
 
-export default { guardarEnDevolucion, eliminarDeDevolucion, exportarExcellDevolucion, modificarCantidadDevolucion };
+export default { guardarEnDevolucion, eliminarDeDevolucion, exportarExcellDevolucion, modificarCantidadDevolucion, obtenerDevolucion };

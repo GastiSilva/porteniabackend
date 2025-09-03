@@ -7,13 +7,11 @@ import { Writable } from 'stream';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc.js';
 dayjs.extend(utc);
+import { Op } from "sequelize";
 
-// Función para generar y enviar el PDF
+
 export const generarPDF = async (req, res) => {
   const doc = new PDFDocument();
-
-  //variables para su uso
-
   const {id} = req.params;
 
   const remito = await Remito.findByPk(id, {
@@ -33,7 +31,7 @@ export const generarPDF = async (req, res) => {
     attributes: ['Id_Producto', 'Codigo', 'Nombre']
   });
 
-  const totalOperacion = RemitoProductoEncontrado.reduce((total, rp) => total + rp.Cantidad * rp.PrecioTotal, 0);
+  const totalOperacion = RemitoProductoEncontrado.reduce((total, rp) => total + rp.Cantidad * rp.PrecioUnit, 0);
   const anio = dayjs(remito.Fecha).utc().year();
   const mes = dayjs(remito.Fecha).utc().month() + 1; // Los meses en dayjs son 0-indexados
   const dia = dayjs(remito.Fecha).utc().date();
@@ -118,11 +116,11 @@ export const generarPDF = async (req, res) => {
   textDatosY += 15;
   doc.text(`DOMICILIO: ${remito?.Domicilio}`, textDatosX, textDatosY, { align: 'left' });
 
-  // Línea separadora
-  doc.moveTo(20, cuadroDatosY + cuadroDatosHeight + 10).lineTo(570, cuadroDatosY + cuadroDatosHeight + 10).stroke();
+  // // Línea separadora
+  // doc.moveTo(20, cuadroDatosY + cuadroDatosHeight + 10).lineTo(570, cuadroDatosY + cuadroDatosHeight + 10).stroke();
 
   // Encabezado de la tabla con cuadros alrededor de cada columna
-  const tableTop = cuadroDatosY + cuadroDatosHeight + 30;
+  const tableTop = cuadroDatosY + cuadroDatosHeight + 20;
   const tableX = cuadroIzquierdoX;
   const tableTopInit = cuadroDatosY + cuadroDatosHeight + 30;
   const tableXInit = cuadroIzquierdoX;
@@ -169,8 +167,8 @@ export const generarPDF = async (req, res) => {
     doc.text(item.codigo.toString(), tableX + 12, positionY);
     doc.text(item.producto, tableX + 70, positionY);
     doc.text(item.cantidad.toString(), tableX + 300, positionY); // Mover un poco a la derecha
-    doc.text(item.precio.toString(), tableX + 370, positionY); // Mover un poco a la derecha
-    doc.text(item.subtotal.toString(), tableX + 460, positionY); // Mover un poco a la derecha
+    doc.text(item.precio.toLocaleString('es-AR', { style: 'currency', currency: 'ARS', minimumFractionDigits: 2 }), tableX + 370, positionY); // Mover un poco a la derecha
+    doc.text(item.subtotal.toLocaleString('es-AR', { style: 'currency', currency: 'ARS', minimumFractionDigits: 2 }), tableX + 460, positionY); // Mover un poco a la derecha
   
     // Líneas divisorias entre filas
     doc.moveTo(tableX, positionY + 15).lineTo(tableX + 550, positionY + 15).stroke();
@@ -199,7 +197,7 @@ doc.font('Helvetica').text(EstadoEncontrado.Estado, estadoBoxX + 45, estadoBoxY 
 
   // Texto dentro del recuadro del total
   doc.font('Helvetica-Bold').fontSize(10).text('TOTAL:', totalBoxX + 5, totalBoxY + 10);
-  doc.font('Helvetica').text(`$${totalOperacion.toFixed(2)} ARS`, totalBoxX + 45, totalBoxY + 10);
+  doc.font('Helvetica').text(`${totalOperacion.toLocaleString('es-AR', { style: 'currency', currency: 'ARS', minimumFractionDigits: 2 })}`, totalBoxX + 45, totalBoxY + 10);
 
 
   //Gusto caseroo
@@ -228,7 +226,22 @@ doc.font('Helvetica').text(EstadoEncontrado.Estado, estadoBoxX + 45, estadoBoxY 
 
 export const obtenerRemitos = async (req, res) => {   
   try {
+    const { fechaDesde, fechaHasta } = req.query;
+    const whereClause = {};
+    if (fechaDesde && fechaHasta) {
+      const desde = dayjs(fechaDesde).startOf('day').toDate();
+      const hasta = dayjs(fechaHasta).endOf('day').toDate();
+      whereClause.Fecha = { [Op.between]: [desde, hasta] };
+    } else if (fechaDesde) {
+      const desde = dayjs(fechaDesde).startOf('day').toDate();
+      whereClause.Fecha = { [Op.gte]: desde };
+    } else if (fechaHasta) {
+      const hasta = dayjs(fechaHasta).endOf('day').toDate();
+      whereClause.Fecha = { [Op.lte]: hasta };
+    }
+
     const remitos = await Remito.findAll({
+      where: whereClause,
       attributes: ['Id_Remito', 'Senior', 'Fecha', 'Id_Estado', 'remitoPDF']
     });
     
@@ -244,19 +257,18 @@ export const obtenerRemitos = async (req, res) => {
 
     const remitosConTotal = await Promise.all(remitosConEstado.map(async (remito) => {
       const remitoTotal = await RemitoProducto.findAll({
-      where: { Id_Remito: remito.Id_Remito },
-      attributes: ['PrecioTotal']
+        where: { Id_Remito: remito.Id_Remito },
+        attributes: ['PrecioTotal']
       });
 
       const total = remitoTotal.reduce((sum, rp) => sum + parseFloat(rp.toJSON().PrecioTotal || 0), 0);
 
       return {
-      ...remito,
-      Total: total
+        ...remito,
+        Total: total
       };
     }));
 
-    // Enviamos solo una respuesta
     return res.status(200).json(remitosConTotal);
     
   } catch (error) {
@@ -308,5 +320,5 @@ export const eliminarRemito = async (req, res) => {
   }
 };
 
-// Exportar el controlador
+
 export default { generarPDF, obtenerRemitos, obtenerPDF, eliminarRemito }; 

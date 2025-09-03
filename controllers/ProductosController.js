@@ -39,4 +39,21 @@ export async function exportarExcellProductos(req, res) {
     }
 }
 
-export default {exportarExcellProductos}
+export async function crearProducto(req, res) {
+    try {
+        const { Codigo, Nombre } = req.body;
+
+        if (!Codigo || !Nombre) {
+            return res.status(400).json({ message: "Faltan datos requeridos: Código y Nombre." });
+        }
+
+        const nuevoProducto = await Producto.create({ Codigo, Nombre });
+
+        return res.status(201).json({ message: "Producto creado exitosamente.", producto: nuevoProducto });
+    } catch (error) {
+        console.error("Error al crear producto:", error);
+        return res.status(500).json({ message: "Error interno del servidor", error: error.message });
+    }
+}
+
+export default {exportarExcellProductos, crearProducto}

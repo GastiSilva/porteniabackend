@@ -42,7 +42,7 @@ const IVAVentas = sequelize.define('IVAVentas', {
     allowNull: false
   },
   Neto: {
-    type: DataTypes.INTEGER,
+    type: DataTypes.DECIMAL(10,2),
     allowNull: false
   },
   IVA21: {
@@ -51,11 +51,11 @@ const IVAVentas = sequelize.define('IVAVentas', {
   },
   IVA10_5: {
     type: DataTypes.DECIMAL(10,2),
-    allowNull: false
+    allowNull: true
   },
   Retenciones: {
     type: DataTypes.DECIMAL(10,2), 
-    allowNull: false
+    allowNull: true
   },
   ImporteTotal: {
     type: DataTypes.DECIMAL(10,2), 
