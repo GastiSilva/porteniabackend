@@ -81,7 +81,7 @@ export async function exportarExcellIngresos(req, res) {
         res.end();
     } catch (error) {
         console.error("Error al exportar datos de Producción:", error);
-        return res.status(500).json({ message: "Error interno del servidor", error: error.message });
+        return res.status(500).json({ message: "Error interno del servidor" });
     }
 }
 
@@ -115,7 +115,7 @@ export async function modificarIngreso(req, res) {
         res.status(200).json({ message: "Ingreso actualizado correctamente.", ingreso });
     } catch (error) {
         console.error("Error al modificar el ingreso:", error);
-        return res.status(500).json({ message: "Error interno del servidor", error: error.message });
+        return res.status(500).json({ message: "Error interno del servidor" });
     }
 }
 
@@ -155,7 +155,7 @@ export async function agregarIngreso(req, res) {
         res.status(201).json({ message: "Ingreso agregado correctamente.", ingreso: nuevoIngreso });
     } catch (error) {
         console.error("Error al agregar el ingreso:", error);
-        return res.status(500).json({ message: "Error interno del servidor", error: error.message });
+        return res.status(500).json({ message: "Error interno del servidor" });
     }
 }
 

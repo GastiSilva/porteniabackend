@@ -1,19 +1,16 @@
 import { Sequelize } from 'sequelize';
-// import config from './config/config.json' assert { type: "json" }; // Importa el archivo JSON con assert
-import { readFileSync } from 'fs';
+import 'dotenv/config';
 
-const config = JSON.parse(readFileSync('./config/config.json', 'utf-8'));
-
-
-
-// Determina el entorno, normalmente "development" o "production"
-const env = process.env.NODE_ENV || 'development';
-const dbConfig = config[env];
-
-const sequelize = new Sequelize(dbConfig.database, dbConfig.username, dbConfig.password, {
-    host: dbConfig.host,
-    dialect: dbConfig.dialect,
-    logging: console.log,
-});
+const sequelize = new Sequelize(
+  process.env.DB_NAME,
+  process.env.DB_USER,
+  process.env.DB_PASSWORD,
+  {
+    host: process.env.DB_HOST,
+    port: process.env.DB_PORT,
+    dialect: process.env.DB_DIALECT || 'postgres',
+    logging: process.env.NODE_ENV === 'production' ? false : console.log,
+  }
+);
 
 export default sequelize;

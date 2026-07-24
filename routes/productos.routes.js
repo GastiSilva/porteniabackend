@@ -1,6 +1,8 @@
 import { Router } from "express";
 import {exportarExcellProductos, crearProducto} from "../controllers/ProductosController.js";
 import Producto from "../models/Producto.js";
+import { validate } from "../middleware/validate.js";
+import { productoSchema } from "../validators/entidadSimple.schema.js";
 
 const router = Router();
 
@@ -16,7 +18,7 @@ router.post("/FetchProducts", async (req, res) => {
     }
 })
 router.get("/ExportarExcellProductos", exportarExcellProductos);
-router.post("/CrearProducto", crearProducto);
+router.post("/CrearProducto", validate(productoSchema), crearProducto);
 
 
 

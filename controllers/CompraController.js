@@ -44,7 +44,7 @@ export const obtenerEstructuraCompras = async (req, res) => {
     });
   } catch (error) {
     console.error('Error al obtener la estructura de las tablas:', error);
-    res.status(500).json({ error: 'Error al obtener la estructura de las tablas', details: error.message });
+    res.status(500).json({ error: 'Error al obtener la estructura de las tablas' });
   }
 };
 
@@ -164,7 +164,7 @@ export async function exportarExcelCompras(req, res) {
 
   } catch (error) {
     console.error("Error al exportar datos de Compras:", error);
-    return res.status(500).json({ message: "Error interno del servidor", error: error.message });
+    return res.status(500).json({ message: "Error interno del servidor" });
   }
 }
 
@@ -212,7 +212,6 @@ export const guardarCompra = async (req, res) => {
     console.error('Error al guardar la compra:', error);
     return res.status(500).json({
       message: 'Error al guardar la compra',
-      error: error.message,
     });
   }
 }
@@ -255,7 +254,6 @@ export const modificarCompra = async (req, res) => {
     console.error('Error al modificar la compra:', error);
     return res.status(500).json({
       message: 'Error al modificar la compra',
-      error: error.message,
     });
   }
 };
@@ -271,7 +269,7 @@ export async function obtenerStock(req, res) {
     return res.status(200).json(stock);
   } catch (error) {
     console.error("Error al obtener stock:", error);
-    return res.status(500).json({ message: "Error interno del servidor", error: error.message });
+    return res.status(500).json({ message: "Error interno del servidor" });
   }
 };
 

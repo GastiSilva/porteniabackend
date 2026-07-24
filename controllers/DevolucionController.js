@@ -60,7 +60,7 @@ export async function obtenerDevolucion(req, res) {
       });
     } catch (error) {
       console.error("Error al obtener Devolucion:", error);
-      return res.status(500).json({ message: "Error interno del servidor", error: error.message });
+      return res.status(500).json({ message: "Error interno del servidor" });
     }
 }
 
@@ -108,7 +108,7 @@ export async function guardarEnDevolucion(req, res) {
 
     } catch (error) {
         console.error("Error al guardar en Devolucion:", error);
-        return res.status(500).json({ message: "Error interno del servidor", error: error.message });
+        return res.status(500).json({ message: "Error interno del servidor" });
     }
 }
 
@@ -156,7 +156,7 @@ export async function eliminarDeDevolucion(req, res) {
         }
     } catch (error) {
         console.error("Error al eliminar de Devolucion:", error);
-        return res.status(500).json({ message: "Error interno del servidor", error: error.message });
+        return res.status(500).json({ message: "Error interno del servidor" });
     }
 }
 
@@ -226,7 +226,7 @@ export async function modificarCantidadDevolucion(req, res) {
         });
     } catch (error) {
         console.error("Error al modificar la cantidad de devolución:", error);
-        return res.status(500).json({ message: "Error interno del servidor", error: error.message });
+        return res.status(500).json({ message: "Error interno del servidor" });
     }
 }
 
@@ -291,7 +291,7 @@ export async function exportarExcellDevolucion(req, res) {
         res.end();
     } catch (error) {
         console.error("Error al exportar datos de Producción:", error);
-        return res.status(500).json({ message: "Error interno del servidor", error: error.message });
+        return res.status(500).json({ message: "Error interno del servidor" });
     }
 }
 

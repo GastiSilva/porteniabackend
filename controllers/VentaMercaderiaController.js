@@ -61,7 +61,7 @@ export async function obtenerVentasMercaderia(req, res) {
       });
     } catch (error) {
       console.error("Error al obtener Devolucion:", error);
-      return res.status(500).json({ message: "Error interno del servidor", error: error.message });
+      return res.status(500).json({ message: "Error interno del servidor" });
     }
 }
 
@@ -137,7 +137,7 @@ export async function guardarVentaMercaderia(req, res) {
         });
     } catch (error) {
         console.error("Error al guardar en Ventas:", error);
-        return res.status(500).json({ message: "Error interno del servidor", error: error.message });
+        return res.status(500).json({ message: "Error interno del servidor" });
     }
 }
 
@@ -207,7 +207,7 @@ export async function modificarCantidadVenta(req, res) {
         });
     } catch (error) {
         console.error("Error al modificar la cantidad de venta:", error);
-        return res.status(500).json({ message: "Error interno del servidor", error: error.message });
+        return res.status(500).json({ message: "Error interno del servidor" });
     }
 }
 
@@ -271,7 +271,7 @@ export async function exportarExcellVentas(req, res) {
         res.end();
     } catch (error) {
         console.error("Error al exportar datos de Producción:", error);
-        return res.status(500).json({ message: "Error interno del servidor", error: error.message });
+        return res.status(500).json({ message: "Error interno del servidor" });
     }
 }
 

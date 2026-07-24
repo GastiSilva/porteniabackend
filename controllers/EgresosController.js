@@ -115,7 +115,7 @@ export async function exportarExcellEgresos(req, res) {
         res.end();
     } catch (error) {
         console.error("Error al exportar datos de Egresos:", error);
-        return res.status(500).json({ message: "Error interno del servidor", error: error.message });
+        return res.status(500).json({ message: "Error interno del servidor" });
     }
 }
 
@@ -137,7 +137,7 @@ export async function guardarEgreso(req, res) {
         return res.status(201).json({ message: "Egreso guardado exitosamente.", data: nuevoEgreso });
     } catch (error) {
         console.error("Error al guardar el egreso:", error);
-        return res.status(500).json({ message: "Error interno del servidor", error: error.message });
+        return res.status(500).json({ message: "Error interno del servidor" });
     }
 }
 
@@ -165,7 +165,7 @@ export async function obtenerTodosEgresos(req, res) {
         return res.status(200).json({ data: egresos });
     } catch (error) {
         console.error("Error al obtener los egresos:", error);
-        return res.status(500).json({ message: "Error interno del servidor", error: error.message });
+        return res.status(500).json({ message: "Error interno del servidor" });
     }
 }
 
@@ -193,7 +193,7 @@ export async function modificarEgreso(req, res) {
         res.status(200).json({ message: "Egreso actualizado correctamente.", egreso });
     } catch (error) {
         console.error("Error al modificar el egreso:", error);
-        return res.status(500).json({ message: "Error interno del servidor", error: error.message });
+        return res.status(500).json({ message: "Error interno del servidor" });
     }
 }
 

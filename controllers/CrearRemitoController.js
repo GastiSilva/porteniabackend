@@ -33,7 +33,7 @@ export const crearRemito = async (req, res) => {
     res.status(201).json({ message: "Remito guardado con éxito", remito: nuevoRemito });
   } catch (error) {
     await transaction.rollback();
-    res.status(500).json({ error: "Error al guardar el remito", details: error.message });
+    res.status(500).json({ error: "Error al guardar el remito" });
   }
 };
 

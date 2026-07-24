@@ -1,0 +1,21 @@
+# Dependencies
+node_modules/
+package-lock.json
+
+# Secrets / credentials — contains plaintext DB password, keep out of context
+config/config.json
+
+# Env files
+.env
+.env.*
+
+# Generated / runtime output
+uploads/
+*.log
+logs/
+
+# OS/editor cruft
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

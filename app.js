@@ -1,7 +1,10 @@
+import 'dotenv/config';
 import express from 'express';
 import sequelize from './config.js';
 import cors from 'cors';
 import bodyParser from 'body-parser';
+import { verificarToken } from './middleware/auth.js';
+import { notFoundHandler, errorHandler } from './middleware/errorHandler.js';
 
 //rutas
 import usuariosRoutes from './routes/usurios.routes.js';
@@ -25,39 +28,13 @@ import tipogastosroutes from './routes/tipogastos.routes.js';
 import usuariosroutes from './routes/usuarios.routes.js';
 import materiaprimaroutes from './routes/materiaprima.routes.js';
 
-//modelos
-// import './models/Usuario.js';
-// import './models/Proveedor.js';
-// import './models/Producto.js';
-// import './models/VentasMercaderia.js';
-// import './models/Devolucion.js';
-// import './models/Produccion.js';
-// import './models/Clientes.js';
-// import './models/Estados.js';
-// import './models/Vendedores.js';
-// import './models/MateriaPrima.js';
-// import './models/MateriaPrimaPorProducto.js';
-// import './models/Concepto.js';
-// import './models/Compras.js';
-// import './models/CompraMateriaPrima.js';
-// import './models/IVACompras.js';
-// import './models/IVAVentas.js';
-// import './models/Gastos.js';
-// import './models/Egresos.js';
-// import './models/EgresoGastosAsosiaciones.js';
-// import './models/Ingresos.js'
-// import './models/Remito.js';
-// import './models/RemitoProducto.js';
-// import './models/TipoGastos.js';
-
-
 const app = express();
-const port = 3000;
+const port = process.env.PORT || 3000;
 
 
 app.use(bodyParser.json());
 app.use(cors({
-  origin: 'http://localhost:9000'
+  origin: process.env.CORS_ORIGIN || 'http://localhost:9000'
 }));
 
 //Rutas
@@ -65,7 +42,12 @@ app.get('/', (req, res) => {
   res.send('¡Hola, Express!');
 });
 
+// Rutas públicas (login/registro)
 app.use('/api', usuariosRoutes);
+
+// A partir de aca, todas las rutas requieren un JWT valido
+app.use('/api', verificarToken);
+
 app.use('/api', remitosRoutes);
 app.use('/api', produccionRoutes);
 app.use('/api', productoRoutes);
@@ -86,26 +68,21 @@ app.use('/api', tipogastosroutes);
 app.use('/api', usuariosroutes);
 app.use('/api', materiaprimaroutes);
 
-
+app.use(notFoundHandler);
+app.use(errorHandler);
 
 app.listen(port, () => {
   console.log(`Servidor corriendo en http://localhost:${port}`);
 });
 
-
 async function main() {
   try {
-    await sequelize.sync();
-
+    await sequelize.authenticate();
+    console.log('Conexion a PostgreSQL establecida.');
   } catch (error) {
-    console.log('Error al conectar con PostgreSQL:', error)
-
+    console.log('Error al conectar con PostgreSQL:', error);
   }
 }
 
 main();
-
-// Sincronizar todos los modelos con la base de datos
-
-// Iniciar tu servidor aquí (por ejemplo, Express)
 

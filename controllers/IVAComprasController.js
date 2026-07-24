@@ -58,8 +58,7 @@ export const guardarIVACompra = async (req, res) => {
   } catch (error) {
     console.error('Error al guardar IVA Compra:', error);
     return res.status(500).json({
-      message: 'Error al guardar IVA Compra',
-      error: error.message
+      message: 'Error al guardar IVA Compra'
     });
   }
 };
@@ -100,7 +99,7 @@ export async function modificarIVACompras(req, res) {
     res.status(200).json({ message: "IvaCompras actualizado correctamente.", ivacompras });
   } catch (error) {
     console.error("Error al modificar el ivacompras:", error);
-    return res.status(500).json({ message: "Error interno del servidor", error: error.message });
+    return res.status(500).json({ message: "Error interno del servidor" });
   }
 }
 

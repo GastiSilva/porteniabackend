@@ -40,7 +40,7 @@ export const obtenerEstructuraIVAVentas = async (req, res) => {
     });
   } catch (error) {
     console.error('Error al obtener la estructura de las tablas:', error);
-    res.status(500).json({ error: 'Error al obtener la estructura de las tablas', details: error.message });
+    res.status(500).json({ error: 'Error al obtener la estructura de las tablas' });
   }
 };
 
@@ -95,8 +95,7 @@ export const guardarIVAVenta = async (req, res) => {
   } catch (error) {
     console.error('Error al guardar IVA Venta:', error);
     return res.status(500).json({
-      message: 'Error al guardar IVA Venta',
-      error: error.message
+      message: 'Error al guardar IVA Venta'
     });
   }
 };
@@ -131,7 +130,7 @@ export async function modificarIVAVentas(req, res) {
     res.status(200).json({ message: "IvaVentas actualizado correctamente.", ivaventas });
   } catch (error) {
     console.error("Error al modificar el ivaventas:", error);
-    return res.status(500).json({ message: "Error interno del servidor", error: error.message });
+    return res.status(500).json({ message: "Error interno del servidor" });
   }
 }
 

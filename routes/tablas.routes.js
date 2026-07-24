@@ -4,6 +4,23 @@ import dayjs from 'dayjs';
 
 const router = Router();
 
+// Whitelist de tablas reales del schema (ver tableName en cada modelo de /models).
+// tableName llega como parametro de URL y se usaba antes directo en SQL crudo: sin esta
+// validacion cualquiera podia inyectar SQL via /api/datosTablas/:tableName.
+const TABLAS_VALIDAS = new Set([
+    'Clientes', 'Egresos', 'Devolucion', 'Estados', 'IVACompras', 'CompraMateriaPrima',
+    'Gastos', 'Ingresos', 'IVAVentas', 'MateriaPrima', 'Compras', 'Produccion', 'Conceptos',
+    'Proveedor', 'Remito', 'RemitoProducto', 'Productos', 'MateriaPrimaPorProducto',
+    'Usuarios', 'Solicitantes', 'TipoGastos', 'VentasMercaderia', 'Vendedores',
+]);
+
+function validarNombreTabla(req, res, next) {
+    if (!TABLAS_VALIDAS.has(req.params.tableName)) {
+        return res.status(400).json({ mensaje: 'Nombre de tabla invalido' });
+    }
+    next();
+}
+
 router.get('/tablasTodas', async (req, res) => {
     try {
         const query = "SELECT tablename as table_name FROM pg_catalog.pg_tables WHERE schemaname = 'public'";
@@ -35,7 +52,7 @@ router.get('/tablasExcell', async (req, res) => {
 
 
 //METODO PARA LAS TABLAS
-router.get('/datosTablas/:tableName', async (req, res) => {
+router.get('/datosTablas/:tableName', validarNombreTabla, async (req, res) => {
     const { tableName } = req.params;
     const { fechaDesde, fechaHasta } = req.query;
     try {
@@ -169,7 +186,7 @@ router.get('/datosTablas/:tableName', async (req, res) => {
 
 
 //METODO PARA EL FORMS
-router.get('/datosTablasForms/:tableName', async (req, res) => {
+router.get('/datosTablasForms/:tableName', validarNombreTabla, async (req, res) => {
     const { tableName } = req.params;
     try {
         // Consulta las columnas y detecta claves foráneas

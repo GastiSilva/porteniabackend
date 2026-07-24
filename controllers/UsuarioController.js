@@ -1,4 +1,5 @@
 import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
 import Usuario from "../models/Usuario.js";
 import sequelize from '../config.js';
 
@@ -18,7 +19,13 @@ export const autenticar = async (req, res) => {
 
     const esValido = await bcrypt.compare(Contrasenia, usuario.Contrasenia);
     if (esValido) {
-      return res.status(200).json({ mensaje: 'Autenticación exitosa', usuario });
+      const token = jwt.sign(
+        { id_Usuario: usuario.id_Usuario, Usuario: usuario.Usuario },
+        process.env.JWT_SECRET,
+        { expiresIn: process.env.JWT_EXPIRES_IN || '8h' }
+      );
+      const { Contrasenia: _, ...usuarioSinPassword } = usuario.toJSON();
+      return res.status(200).json({ mensaje: 'Autenticación exitosa', token, usuario: usuarioSinPassword });
     } else {
       return res.status(401).json({ mensaje: 'Contraseña incorrecta' });
     }
@@ -51,7 +58,8 @@ export const registrar = async (req, res) => {
       Mail
     });
 
-    return res.status(201).json({ mensaje: 'Usuario registrado exitosamente', usuario: nuevoUsuario });
+    const { Contrasenia: _, ...usuarioSinPassword } = nuevoUsuario.toJSON();
+    return res.status(201).json({ mensaje: 'Usuario registrado exitosamente', usuario: usuarioSinPassword });
   } catch (error) {
     console.error('Error del servidor:', error);
     return res.status(500).json({ mensaje: 'Error del servidor' });

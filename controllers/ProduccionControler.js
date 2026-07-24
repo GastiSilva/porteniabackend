@@ -61,7 +61,7 @@ export async function obtenerProduccion(req, res) {
     });
   } catch (error) {
     console.error("Error al obtener Producción:", error);
-    return res.status(500).json({ message: "Error interno del servidor", error: error.message });
+    return res.status(500).json({ message: "Error interno del servidor" });
   }
 }
 
@@ -149,7 +149,7 @@ export async function guardarEnProduccion(req, res) {
   
     } catch (error) {
       console.error("Error al guardar en Producción:", error);
-      return res.status(500).json({ message: "Error interno del servidor", error: error.message });
+      return res.status(500).json({ message: "Error interno del servidor" });
     }
 }
 
@@ -192,7 +192,7 @@ export async function modificarProduccion(req, res) {
         });
     } catch (error) {
         console.error("Error al modificar Producción:", error);
-        return res.status(500).json({ message: "Error interno del servidor", error: error.message });
+        return res.status(500).json({ message: "Error interno del servidor" });
     }
 }
 
@@ -258,7 +258,7 @@ export async function exportarExcellProduccion(req, res) {
         res.end();
     } catch (error) {
         console.error("Error al exportar datos de Producción:", error);
-        return res.status(500).json({ message: "Error interno del servidor", error: error.message });
+        return res.status(500).json({ message: "Error interno del servidor" });
     }
 }
 

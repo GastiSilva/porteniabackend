@@ -35,7 +35,7 @@ export async function exportarExcellProductos(req, res) {
         res.end();
     } catch (error) {
         console.error("Error al exportar datos de Productos:", error);
-        return res.status(500).json({ message: "Error interno del servidor", error: error.message });
+        return res.status(500).json({ message: "Error interno del servidor" });
     }
 }
 
@@ -52,7 +52,7 @@ export async function crearProducto(req, res) {
         return res.status(201).json({ message: "Producto creado exitosamente.", producto: nuevoProducto });
     } catch (error) {
         console.error("Error al crear producto:", error);
-        return res.status(500).json({ message: "Error interno del servidor", error: error.message });
+        return res.status(500).json({ message: "Error interno del servidor" });
     }
 }
 
